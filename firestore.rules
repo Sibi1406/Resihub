@@ -1,0 +1,90 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper: get user role from users collection
+    function getUserRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && getUserRole() == 'admin';
+    }
+
+    function isResident() {
+      return isAuthenticated() && getUserRole() == 'resident';
+    }
+
+    function isSecurity() {
+      return isAuthenticated() && getUserRole() == 'security';
+    }
+
+    // Users collection
+    match /users/{userId} {
+      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    // Complaints collection
+    match /complaints/{complaintId} {
+      // Admin can read all complaints
+      allow read: if isAdmin();
+      // Residents can only read their own complaints
+      allow read: if isResident() && resource.data.raisedBy == request.auth.uid;
+      // Residents can create complaints (raisedBy must match uid)
+      allow create: if isResident() && request.resource.data.raisedBy == request.auth.uid;
+      // Admin can update complaint status
+      allow update: if isAdmin();
+    }
+
+    // Visitors collection
+    match /visitors/{visitorId} {
+      // Admin can read all visitors
+      allow read: if isAdmin();
+      // Residents can only read visitors for their apartment
+      allow read: if isResident() &&
+        resource.data.apartmentNumber == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.apartmentNumber;
+      // Security can read all visitors
+      allow read: if isSecurity();
+      // Residents can create pre-approved visitors
+      allow create: if isResident();
+      // Security can create manual visitors and update entry/exit
+      allow create, update: if isSecurity();
+    }
+
+    // Funds collection
+    match /funds/{fundId} {
+      // Admin can read and write
+      allow read, write: if isAdmin();
+      // Residents can only read
+      allow read: if isResident();
+      // Security cannot access funds
+    }
+
+    // Emergencies collection
+    match /emergencies/{emergencyId} {
+      // All authenticated users can read emergencies
+      allow read: if isAuthenticated();
+      // All roles can raise (create) emergencies
+      allow create: if isAuthenticated();
+      // Admin and security can resolve (update) emergencies
+      allow update: if isAdmin() || isSecurity();
+    }
+
+    // Announcements collection
+    match /announcements/{announcementId} {
+      // All authenticated users can read
+      allow read: if isAuthenticated();
+      // Only admin can create
+      allow create: if isAdmin();
+      // Only admin can update/delete
+      allow update, delete: if isAdmin();
+    }
+  }
+}
