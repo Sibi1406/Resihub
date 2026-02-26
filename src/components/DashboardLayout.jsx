@@ -8,6 +8,7 @@ import { subscribeAllComplaints } from "../services/complaintService";
 import { subscribeActiveEmergencies } from "../services/emergencyService";
 import { subscribeAnnouncements } from "../services/announcementService";
 import { subscribeVisitors } from "../services/visitorService";
+import AIAssistant from "./AIAssistant";
 
 // Route → human-readable breadcrumb label
 const routeLabels = {
@@ -288,6 +289,9 @@ export default function DashboardLayout({ children }) {
                     </div>
                 </main>
             </div>
+
+            {/* AI Maintenance Assistant — residents only */}
+            {role === "resident" && <AIAssistant />}
         </div>
     );
 }
