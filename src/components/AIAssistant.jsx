@@ -95,7 +95,7 @@ export default function AIAssistant() {
         setImage(null);
 
         try {
-            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
             const prompt = `You are the ResiHub Residential Maintenance Expert AI assistant embedded inside a residential society management app.
 
 Resident's query: "${text || "Please analyze the image attached."}"
