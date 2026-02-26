@@ -1,90 +1,105 @@
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper: get user role from users collection
-    function getUserRole() {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
-    }
-
+    // ── Helper functions ──────────────────────────────────────────────────────
     function isAuthenticated() {
       return request.auth != null;
     }
 
+    function getRole() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role;
+    }
+
     function isAdmin() {
-      return isAuthenticated() && getUserRole() == 'admin';
+      return isAuthenticated() && getRole() == 'admin';
     }
 
     function isResident() {
-      return isAuthenticated() && getUserRole() == 'resident';
+      return isAuthenticated() && getRole() == 'resident';
     }
 
     function isSecurity() {
-      return isAuthenticated() && getUserRole() == 'security';
+      return isAuthenticated() && getRole() == 'security';
     }
 
-    // Users collection
+    function isOwner(uid) {
+      return isAuthenticated() && request.auth.uid == uid;
+    }
+
+    // ── users ─────────────────────────────────────────────────────────────────
     match /users/{userId} {
-      allow read: if isAuthenticated() && request.auth.uid == userId;
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated() && isOwner(userId);
+      allow update: if isOwner(userId) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── complaints ────────────────────────────────────────────────────────────
+    match /complaints/{complaintId} {
+      allow read: if isAuthenticated();
+      allow create: if isResident();
+      allow update: if isAdmin() || isOwner(resource.data.residentId);
+      allow delete: if isAdmin();
+    }
+
+    // ── visitors ──────────────────────────────────────────────────────────────
+    match /visitors/{visitorId} {
+      allow read: if isAuthenticated();
+      allow create: if isResident() || isSecurity();
+      allow update: if isSecurity() || isAdmin() || isOwner(resource.data.residentId);
+      allow delete: if isAdmin();
+    }
+
+    // ── payments ──────────────────────────────────────────────────────────────
+    match /payments/{paymentId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── emergencies ───────────────────────────────────────────────────────────
+    match /emergencies/{emergencyId} {
+      allow read: if isAuthenticated();
+      allow create: if isResident() || isSecurity();
+      allow update: if isAdmin() || isSecurity() || isOwner(resource.data.raisedBy);
+      allow delete: if isAdmin();
+    }
+
+    // ── announcements ─────────────────────────────────────────────────────────
+    match /announcements/{announcementId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── chats (community channels) ────────────────────────────────────────────
+    match /chats/{chatId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAuthenticated(); // last message update
+      allow delete: if isAdmin();
+
+      // messages sub-collection
+      match /messages/{messageId} {
+        allow read: if isAuthenticated();
+        allow create: if isAuthenticated()
+          && request.resource.data.userId == request.auth.uid
+          && request.resource.data.text is string
+          && request.resource.data.text.size() > 0
+          && request.resource.data.text.size() <= 1000;
+        allow update: if isAdmin();
+        allow delete: if isAdmin() || isOwner(resource.data.userId);
+      }
+    }
+
+    // ── funds (legacy, kept for admin use) ────────────────────────────────────
+    match /funds/{fundId} {
       allow read: if isAdmin();
       allow write: if isAdmin();
     }
 
-    // Complaints collection
-    match /complaints/{complaintId} {
-      // Admin can read all complaints
-      allow read: if isAdmin();
-      // Residents can only read their own complaints
-      allow read: if isResident() && resource.data.raisedBy == request.auth.uid;
-      // Residents can create complaints (raisedBy must match uid)
-      allow create: if isResident() && request.resource.data.raisedBy == request.auth.uid;
-      // Admin can update complaint status
-      allow update: if isAdmin();
-    }
-
-    // Visitors collection
-    match /visitors/{visitorId} {
-      // Admin can read all visitors
-      allow read: if isAdmin();
-      // Residents can only read visitors for their apartment
-      allow read: if isResident() &&
-        resource.data.apartmentNumber == get(/databases/$(database)/documents/users/$(request.auth.uid)).data.apartmentNumber;
-      // Security can read all visitors
-      allow read: if isSecurity();
-      // Residents can create pre-approved visitors
-      allow create: if isResident();
-      // Security can create manual visitors and update entry/exit
-      allow create, update: if isSecurity();
-    }
-
-    // Funds collection
-    match /funds/{fundId} {
-      // Admin can read and write
-      allow read, write: if isAdmin();
-      // Residents can only read
-      allow read: if isResident();
-      // Security cannot access funds
-    }
-
-    // Emergencies collection
-    match /emergencies/{emergencyId} {
-      // All authenticated users can read emergencies
-      allow read: if isAuthenticated();
-      // All roles can raise (create) emergencies
-      allow create: if isAuthenticated();
-      // Admin and security can resolve (update) emergencies
-      allow update: if isAdmin() || isSecurity();
-    }
-
-    // Announcements collection
-    match /announcements/{announcementId} {
-      // All authenticated users can read
-      allow read: if isAuthenticated();
-      // Only admin can create
-      allow create: if isAdmin();
-      // Only admin can update/delete
-      allow update, delete: if isAdmin();
-    }
   }
 }

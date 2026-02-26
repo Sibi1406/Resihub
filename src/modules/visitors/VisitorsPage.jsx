@@ -21,6 +21,8 @@ export default function VisitorsPage() {
         name: "",
         phone: "",
         apartmentNumber: "",
+        expectedDateTime: "",
+        purpose: "",
         type: role === "security" ? "manual" : "preapproved",
     });
     const [submitting, setSubmitting] = useState(false);
@@ -55,7 +57,14 @@ export default function VisitorsPage() {
             });
             toast.success(form.type === "preapproved" ? "Visitor pre-approved" : "Visitor added");
             setShowModal(false);
-            setForm({ name: "", phone: "", apartmentNumber: "", type: role === "security" ? "manual" : "preapproved" });
+            setForm({
+                name: "",
+                phone: "",
+                apartmentNumber: "",
+                expectedDateTime: "",
+                purpose: "",
+                type: role === "security" ? "manual" : "preapproved",
+            });
         } catch {
             toast.error("Failed to add visitor");
         }
@@ -139,6 +148,8 @@ export default function VisitorsPage() {
                                 <th className="px-5 py-3 font-medium">Apartment</th>
                                 <th className="px-5 py-3 font-medium">Type</th>
                                 <th className="px-5 py-3 font-medium">Status</th>
+                        <th className="px-5 py-3 font-medium">Expected</th>
+                        <th className="px-5 py-3 font-medium">Purpose</th>
                                 <th className="px-5 py-3 font-medium">Entry</th>
                                 <th className="px-5 py-3 font-medium">Exit</th>
                                 {role === "security" && <th className="px-5 py-3 font-medium">Actions</th>}
@@ -147,7 +158,7 @@ export default function VisitorsPage() {
                         <tbody>
                             {filteredByDate.length === 0 ? (
                                 <tr>
-                                    <td colSpan={role === "security" ? 8 : 7} className="px-5 py-10 text-center text-slate-400">
+                                    <td colSpan={role === "security" ? 10 : 9} className="px-5 py-10 text-center text-slate-400">
                                         No visitors found
                                     </td>
                                 </tr>
@@ -159,6 +170,12 @@ export default function VisitorsPage() {
                                         <td className="px-5 py-3 text-slate-500">{v.apartmentNumber}</td>
                                         <td className="px-5 py-3 capitalize text-slate-500">{v.type}</td>
                                         <td className="px-5 py-3"><StatusBadge status={v.status} /></td>
+                                        <td className="px-5 py-3 text-slate-500 text-xs">
+                                            {v.expectedDateTime?.toDate?.()?.toLocaleString() || v.expectedDateTime || "—"}
+                                        </td>
+                                        <td className="px-5 py-3 text-slate-500 text-xs">
+                                            {v.purpose || "—"}
+                                        </td>
                                         <td className="px-5 py-3 text-slate-500 text-xs">
                                             {v.entryTime?.toDate?.()?.toLocaleString() || "—"}
                                         </td>
@@ -218,6 +235,30 @@ export default function VisitorsPage() {
                             placeholder="Phone number"
                         />
                     </div>
+                    {role === "resident" && (
+                        <>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Expected Date & Time</label>
+                                <input
+                                    type="datetime-local"
+                                    required
+                                    value={form.expectedDateTime}
+                                    onChange={(e) => setForm({ ...form, expectedDateTime: e.target.value })}
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                />
+                            </div>
+                            <div>
+                                <label className="block text-sm font-medium text-slate-700 mb-1">Purpose</label>
+                                <input
+                                    required
+                                    value={form.purpose}
+                                    onChange={(e) => setForm({ ...form, purpose: e.target.value })}
+                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    placeholder="Reason for visit"
+                                />
+                            </div>
+                        </>
+                    )}
                     {role === "security" && (
                         <div>
                             <label className="block text-sm font-medium text-slate-700 mb-1">Apartment Number</label>

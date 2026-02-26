@@ -27,6 +27,13 @@ export function subscribeAllComplaints(callback) {
     });
 }
 
+export function subscribeUserComplaints(residentId, callback) {
+    const q = query(collection(db, COL), where("residentId", "==", residentId), orderBy("createdAt", "desc"));
+    return onSnapshot(q, (snap) => {
+        callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+    });
+}
+
 export async function addComplaint(data, imageFile) {
     let imageUrl = "";
     if (imageFile) {

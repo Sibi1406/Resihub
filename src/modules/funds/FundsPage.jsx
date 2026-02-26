@@ -91,15 +91,15 @@ export default function FundsPage() {
             {/* Summary cards */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
                 <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-5">
-                    <p className="text-sm font-medium text-emerald-600">Total Income</p>
+                    <p className="text-sm font-medium text-emerald-600">This Month Income</p>
                     <p className="text-2xl font-bold text-emerald-700 mt-1">₹{summary.income.toLocaleString()}</p>
                 </div>
                 <div className="bg-red-50 border border-red-200 rounded-xl p-5">
-                    <p className="text-sm font-medium text-red-600">Total Expense</p>
+                    <p className="text-sm font-medium text-red-600">This Month Expense</p>
                     <p className="text-2xl font-bold text-red-700 mt-1">₹{summary.expense.toLocaleString()}</p>
                 </div>
                 <div className={`${summary.balance >= 0 ? "bg-blue-50 border-blue-200" : "bg-amber-50 border-amber-200"} border rounded-xl p-5`}>
-                    <p className={`text-sm font-medium ${summary.balance >= 0 ? "text-blue-600" : "text-amber-600"}`}>Net Balance</p>
+                    <p className={`text-sm font-medium ${summary.balance >= 0 ? "text-blue-600" : "text-amber-600"}`}>Remaining Balance</p>
                     <p className={`text-2xl font-bold mt-1 ${summary.balance >= 0 ? "text-blue-700" : "text-amber-700"}`}>
                         ₹{summary.balance.toLocaleString()}
                     </p>

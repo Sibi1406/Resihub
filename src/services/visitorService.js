@@ -8,8 +8,9 @@ const COL = "visitors";
 
 export function subscribeVisitors(filters, callback) {
     let constraints = [orderBy("entryTime", "desc")];
-    if (filters?.apartmentNumber) {
-        constraints = [where("apartmentNumber", "==", filters.apartmentNumber), ...constraints];
+    const apt = filters?.apartmentNumber || filters?.ownApartment;
+    if (apt) {
+        constraints = [where("apartmentNumber", "==", apt), ...constraints];
     }
     if (filters?.status) {
         constraints = [where("status", "==", filters.status), ...constraints];
@@ -28,13 +29,20 @@ export function subscribeActiveVisitors(callback) {
 }
 
 export async function addVisitor(data) {
-    return addDoc(collection(db, COL), {
+    const entry = {
         ...data,
         status: data.type === "preapproved" ? "preapproved" : "inside",
         entryTime: data.type === "preapproved" ? null : serverTimestamp(),
         exitTime: null,
         createdAt: serverTimestamp(),
-    });
+    };
+    if (data.expectedDateTime) {
+        // store as JS Date so Firestore will convert to Timestamp
+        entry.expectedDateTime = data.expectedDateTime instanceof Date
+            ? data.expectedDateTime
+            : new Date(data.expectedDateTime);
+    }
+    return addDoc(collection(db, COL), entry);
 }
 
 export async function markEntry(id) {
@@ -48,5 +56,12 @@ export async function markExit(id) {
     return updateDoc(doc(db, COL, id), {
         status: "exited",
         exitTime: serverTimestamp(),
+    });
+}
+
+export function subscribeAllResidents(callback) {
+    const q = query(collection(db, "users"), orderBy("createdAt", "desc"));
+    return onSnapshot(q, (snap) => {
+        callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
 }

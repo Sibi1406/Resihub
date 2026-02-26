@@ -59,6 +59,23 @@ export default function EmergencyPage() {
 
     return (
         <DashboardLayout>
+            {active.length > 0 && (
+                <div className="w-full bg-red-600 text-white px-6 py-3 flex items-center justify-between animate-pulse mb-4">
+                    <span className="font-bold">🚨 Emergency Active</span>
+                    <span className="text-sm opacity-90">
+                        {active[0].raisedByName || ''} • {(() => {
+                            const then = active[0].createdAt?.toDate?.().getTime();
+                            const now = Date.now();
+                            const diff = now - then;
+                            const hrs = Math.floor(diff / (1000 * 60 * 60));
+                            const mins = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                            if (hrs > 0) return `${hrs}h ${mins}m ago`;
+                            if (mins > 0) return `${mins}m ago`;
+                            return 'just now';
+                        })()}
+                    </span>
+                </div>
+            )}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                 <div>
                     <h1 className="text-2xl font-bold text-slate-800">Emergency Management</h1>

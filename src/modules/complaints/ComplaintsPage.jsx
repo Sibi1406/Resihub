@@ -11,7 +11,8 @@ import {
 } from "../../services/complaintService";
 import toast from "react-hot-toast";
 
-const CATEGORIES = ["Plumbing", "Electrical", "Cleaning", "Security", "Noise", "Parking", "Other"];
+// only the main categories for residents as per design
+const CATEGORIES = ["Plumbing", "Electrical", "Security", "Other"];
 
 export default function ComplaintsPage() {
     const { user, role, userData } = useAuth();
@@ -125,7 +126,7 @@ export default function ComplaintsPage() {
                     </div>
                 ) : (
                     filtered.map((c) => (
-                        <div key={c.id} className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-sm transition-shadow">
+                        <div key={c.id} className="card card-hover p-5 border border-slate-200">
                             <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-3">
                                 <div className="flex-1">
                                     <div className="flex items-center gap-3 mb-2">
@@ -138,9 +139,34 @@ export default function ComplaintsPage() {
                                         {c.apartmentNumber && <span>🏠 {c.apartmentNumber}</span>}
                                         <span>📅 {c.createdAt?.toDate?.()?.toLocaleDateString() || "—"}</span>
                                         {c.status === "resolved" && c.resolvedAt && (
-                                            <span className="text-emerald-500">
-                                                ✅ Resolved {c.resolvedAt?.toDate?.()?.toLocaleDateString()}
-                                            </span>
+                                            <>
+                                                <span className="text-emerald-500">
+                                                    ✅ Resolved {c.resolvedAt?.toDate?.()?.toLocaleDateString()}
+                                                </span>
+                                                <span className="text-xs text-slate-400 ml-2">
+                                                    ({(() => {
+                                                        const start = c.createdAt?.toDate?.();
+                                                        const end = c.resolvedAt?.toDate?.();
+                                                        if (!start || !end) return "";
+                                                        const diff = end - start;
+                                                        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+                                                        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                                                        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                                                        const parts = [];
+                                                        if (d) parts.push(`${d}d`);
+                                                        if (h) parts.push(`${h}h`);
+                                                        if (m) parts.push(`${m}m`);
+                                                        return parts.join(" ") || "0m";
+                                                    })()})
+                                                </span>
+                                                <div className="flex items-center gap-1 text-xs text-slate-400 mt-1">
+                                                    <span>Raised</span>
+                                                    <span>→</span>
+                                                    <span>In Progress</span>
+                                                    <span>→</span>
+                                                    <span>Resolved</span>
+                                                </div>
+                                            </>
                                         )}
                                     </div>
                                 </div>

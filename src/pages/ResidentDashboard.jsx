@@ -1,107 +1,161 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
 import DashboardLayout from "../components/DashboardLayout";
 import StatCard from "../components/StatCard";
-import StatusBadge from "../components/StatusBadge";
+import PaymentStatusCard from "../components/PaymentStatusCard";
+import PageTransition from "../components/PageTransition";
+import { staggerContainer, cardVariants, fadeInUp } from "../lib/motionVariants";
+import { FileText, UserCheck, AlertTriangle, MessageCircle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
-import { subscribeComplaints } from "../services/complaintService";
+import { subscribeUserComplaints } from "../services/complaintService";
 import { subscribeVisitors } from "../services/visitorService";
 import { subscribeActiveEmergencies } from "../services/emergencyService";
-import { subscribeFunds, calculateSummary } from "../services/fundService";
-import { subscribeAnnouncements } from "../services/announcementService";
+import { subscribePaymentStatus, getCurrentMonth } from "../services/paymentService";
 
 export default function ResidentDashboard() {
     const { user, userData } = useAuth();
-    const [complaints, setComplaints] = useState([]);
-    const [visitors, setVisitors] = useState([]);
-    const [emergencies, setEmergencies] = useState([]);
-    const [fundSummary, setFundSummary] = useState({ income: 0, expense: 0, balance: 0 });
-    const [announcements, setAnnouncements] = useState([]);
+    const navigate = useNavigate();
+
+    const [activeComplaints, setActiveComplaints] = useState(0);
+    const [scheduledVisitors, setScheduledVisitors] = useState(0);
+    const [activeEmergencies, setActiveEmergencies] = useState(0);
+    const [paymentStatus, setPaymentStatus] = useState(null);
+    const [paymentLoading, setPaymentLoading] = useState(true);
+    const currentMonth = getCurrentMonth();
+
+    // pulse flags for animation
+    const [pulseComplaints, setPulseComplaints] = useState(false);
+    const [pulseVisitors, setPulseVisitors] = useState(false);
+    const [pulseEmergencies, setPulseEmergencies] = useState(false);
+
+    const prevCounts = useRef({ complaints: 0, visitors: 0, emergencies: 0 });
 
     useEffect(() => {
         if (!user) return;
-        const now = new Date();
-        const month = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
-        const unsubs = [
-            subscribeComplaints({ raisedBy: user.uid }, setComplaints),
-            subscribeVisitors({ apartmentNumber: userData?.apartmentNumber }, setVisitors),
-            subscribeActiveEmergencies(setEmergencies),
-            subscribeFunds(month, (entries) => setFundSummary(calculateSummary(entries))),
-            subscribeAnnouncements(setAnnouncements),
-        ];
-        return () => unsubs.forEach((u) => u());
-    }, [user, userData]);
+        const unsubs = [];
 
-    const activeComplaints = complaints.filter((c) => c.status !== "resolved").length;
+        // complaints
+        unsubs.push(
+            subscribeUserComplaints(user.uid, (list) => {
+                const cnt = list.filter((c) => c.status !== "resolved").length;
+                setActiveComplaints(cnt);
+                if (prevCounts.current.complaints !== cnt) {
+                    setPulseComplaints(true);
+                    setTimeout(() => setPulseComplaints(false), 800);
+                }
+                prevCounts.current.complaints = cnt;
+            })
+        );
+
+        // visitors scheduled (preapproved) for my apartment
+        unsubs.push(
+            subscribeVisitors({ apartmentNumber: userData?.apartmentNumber, status: "preapproved" }, (list) => {
+                const cnt = list.length;
+                setScheduledVisitors(cnt);
+                if (prevCounts.current.visitors !== cnt) {
+                    setPulseVisitors(true);
+                    setTimeout(() => setPulseVisitors(false), 800);
+                }
+                prevCounts.current.visitors = cnt;
+            })
+        );
+
+        // active emergencies raised by user
+        unsubs.push(
+            subscribeActiveEmergencies((list) => {
+                const userList = list.filter((e) => e.raisedBy === user.uid);
+                const cnt = userList.length;
+                setActiveEmergencies(cnt);
+                if (prevCounts.current.emergencies !== cnt) {
+                    setPulseEmergencies(true);
+                    setTimeout(() => setPulseEmergencies(false), 800);
+                }
+                prevCounts.current.emergencies = cnt;
+            })
+        );
+
+        // Maintenance payment status for current month
+        const unsub = subscribePaymentStatus(user.uid, currentMonth, (payment) => {
+            setPaymentStatus(payment);
+            setPaymentLoading(false);
+        });
+        unsubs.push(unsub);
+
+        return () => unsubs.forEach((u) => u());
+    }, [user, userData, currentMonth]);
 
     return (
         <DashboardLayout>
-            <div className="mb-6">
-                <h1 className="text-2xl font-bold text-slate-800">
-                    Welcome, {userData?.name || "Resident"}
-                </h1>
-                <p className="text-sm text-slate-500 mt-1">
-                    {userData?.apartmentNumber && `Apartment ${userData.apartmentNumber} • `}Your community at a glance
-                </p>
-            </div>
+            <PageTransition>
+                <motion.div variants={fadeInUp} initial="initial" animate="animate" className="mb-8">
+                    <h1 className="page-title">
+                        Welcome back{userData?.name ? `, ${userData.name.split(" ")[0]}` : ""}! 👋
+                    </h1>
+                    <p className="page-subtitle">
+                        {new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                        {userData?.apartmentNumber && ` • Apartment ${userData.apartmentNumber}`}
+                    </p>
+                </motion.div>
 
-            {emergencies.length > 0 && (
-                <div className="mb-6 bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3">
-                    <span className="text-2xl">🚨</span>
-                    <div>
-                        <p className="font-semibold text-red-700">{emergencies.length} Active Emergency{emergencies.length > 1 ? "ies" : ""}</p>
-                        <p className="text-sm text-red-600">{emergencies[0]?.type}: {emergencies[0]?.description}</p>
+                {/* Summary Cards — staggered entrance */}
+                <motion.div
+                    variants={staggerContainer}
+                    initial="initial"
+                    animate="animate"
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                >
+                    {[
+                        { icon: <FileText className="w-5 h-5" />, label: "Active Complaints", value: activeComplaints, color: "blue", path: "/resident/complaints", sub: "tap to view" },
+                        { icon: <UserCheck className="w-5 h-5" />, label: "Visitors Scheduled", value: scheduledVisitors, color: "primary", path: "/resident/visitors", sub: "tap to manage" },
+                        { icon: <AlertTriangle className="w-5 h-5" />, label: "Active Emergencies", value: activeEmergencies, color: "red", path: "/resident/emergency", sub: "tap to report" },
+                        { icon: <MessageCircle className="w-5 h-5" />, label: "Community Chat", value: "Live", color: "violet", path: "/resident/chat", sub: "tap to join" },
+                    ].map((card) => (
+                        <motion.div key={card.label} variants={cardVariants}>
+                            <StatCard {...card} subtext={card.sub} onClick={() => navigate(card.path)} />
+                        </motion.div>
+                    ))}
+                </motion.div>
+
+                {/* Maintenance Payment Status — Full Width Card */}
+                <div className="mb-8 animate-fadeInUp" style={{ animationDelay: "0.5s" }}>
+                    <h2 className="section-label mb-3">
+                        Maintenance Status
+                    </h2>
+                    <PaymentStatusCard
+                        payment={paymentStatus}
+                        loading={paymentLoading}
+                        month={currentMonth}
+                        onClick={() => navigate("/resident/payments")}
+                    />
+                </div>
+
+                {/* Quick Actions */}
+                <div className="animate-fadeInUp" style={{ animationDelay: "0.6s" }}>
+                    <h2 className="section-label mb-3">
+                        Quick Actions
+                    </h2>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                        {[
+                            { label: "File Complaint", path: "/resident/complaints", emoji: "📝" },
+                            { label: "Register Visitor", path: "/resident/visitors", emoji: "🧑‍🤝‍🧑" },
+                            { label: "Announcements", path: "/resident/announcements", emoji: "📢" },
+                            { label: "Emergency", path: "/resident/emergency", emoji: "🚨" },
+                        ].map((action) => (
+                            <motion.button
+                                key={action.path}
+                                whileHover={{ y: -3, boxShadow: "0 8px 24px rgba(229,185,75,0.15)" }}
+                                whileTap={{ scale: 0.97 }}
+                                onClick={() => navigate(action.path)}
+                                className="card p-4 rounded-xl text-center cursor-pointer border border-transparent hover:border-[#E5B94B]/30 transition-colors"
+                            >
+                                <div className="text-2xl mb-1">{action.emoji}</div>
+                                <div className="text-xs font-medium text-slate-700">{action.label}</div>
+                            </motion.button>
+                        ))}
                     </div>
                 </div>
-            )}
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-                <StatCard icon="🛠️" label="My Active Complaints" value={activeComplaints} color="amber" />
-                <StatCard icon="🚪" label="My Visitors" value={visitors.filter(v => v.status === "inside").length} color="blue" />
-                <StatCard
-                    icon="💰"
-                    label="Month Balance"
-                    value={`₹${fundSummary.balance.toLocaleString()}`}
-                    color={fundSummary.balance >= 0 ? "emerald" : "red"}
-                />
-                <StatCard icon="🚨" label="Active Emergencies" value={emergencies.length} color="red" />
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <div className="bg-white rounded-xl border border-slate-200 p-5">
-                    <h2 className="text-base font-semibold text-slate-700 mb-4">My Complaints</h2>
-                    {complaints.length === 0 ? (
-                        <p className="text-sm text-slate-400">No complaints raised yet</p>
-                    ) : (
-                        <div className="space-y-3">
-                            {complaints.slice(0, 5).map((c) => (
-                                <div key={c.id} className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0">
-                                    <div>
-                                        <p className="text-sm font-medium text-slate-700">{c.title}</p>
-                                        <p className="text-xs text-slate-400">{c.category}</p>
-                                    </div>
-                                    <StatusBadge status={c.status} />
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-
-                <div className="bg-white rounded-xl border border-slate-200 p-5">
-                    <h2 className="text-base font-semibold text-slate-700 mb-4">Latest Announcements</h2>
-                    {announcements.length === 0 ? (
-                        <p className="text-sm text-slate-400">No announcements yet</p>
-                    ) : (
-                        <div className="space-y-3">
-                            {announcements.slice(0, 5).map((a) => (
-                                <div key={a.id} className="py-2 border-b border-slate-50 last:border-0">
-                                    <p className="text-sm font-medium text-slate-700">{a.title}</p>
-                                    <p className="text-xs text-slate-400 line-clamp-2 mt-0.5">{a.message}</p>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </div>
-            </div>
+            </PageTransition>
         </DashboardLayout>
     );
 }

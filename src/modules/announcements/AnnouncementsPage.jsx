@@ -59,22 +59,33 @@ export default function AnnouncementsPage() {
                         <p className="text-slate-400">No announcements yet</p>
                     </div>
                 ) : (
-                    announcements.map((a) => (
-                        <div key={a.id} className="bg-white rounded-xl border border-slate-200 p-5 hover:shadow-sm transition-shadow">
-                            <div className="flex items-start gap-3">
-                                <span className="text-2xl mt-0.5">📢</span>
-                                <div className="flex-1">
-                                    <h3 className="font-semibold text-slate-800 text-base">{a.title}</h3>
-                                    <p className="text-sm text-slate-500 mt-2 whitespace-pre-wrap">{a.message}</p>
-                                    <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
-                                        <span>By {a.createdByName || "Admin"}</span>
-                                        <span>•</span>
-                                        <span>{a.createdAt?.toDate?.()?.toLocaleString() || "—"}</span>
+                    announcements.map((a) => {
+                        const now = Date.now();
+                        const posted = a.createdAt?.toDate?.()?.getTime();
+                        const isNew = posted && now - posted < 24 * 60 * 60 * 1000;
+                        return (
+                            <div
+                                key={a.id}
+                                className={`card card-hover p-5 ${isNew ? 'border-mustard' : 'border-slate-200'}`}
+                                style={{ borderStyle: 'solid', borderWidth: '1px', backgroundColor: '#fff' }}
+                            >
+                                <div className="flex items-start gap-3">
+                                    <span className="text-2xl mt-0.5">📢</span>
+                                    <div className="flex-1">
+                                        <h3 className="font-semibold text-slate-800 text-base">
+                                            {a.title} {isNew && <span className="ml-2 text-xs font-semibold text-mustard">NEW</span>}
+                                        </h3>
+                                        <p className="text-sm text-slate-500 mt-2 whitespace-pre-wrap">{a.message}</p>
+                                        <div className="flex items-center gap-3 mt-3 text-xs text-slate-400">
+                                            <span>By {a.createdByName || "Admin"}</span>
+                                            <span>•</span>
+                                            <span>{a.createdAt?.toDate?.()?.toLocaleString() || "—"}</span>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    ))
+                        );
+                    })
                 )}
             </div>
 
