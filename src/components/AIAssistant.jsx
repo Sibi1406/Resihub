@@ -9,94 +9,98 @@ import { X, Send, Bot, Loader2, Paperclip, ImageIcon } from "lucide-react";
 const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
 const genAI = new GoogleGenerativeAI(API_KEY);
 
-const SYSTEM_PROMPT = `You are ResiHub AI Assistant — a friendly, helpful residential society support chatbot embedded inside the ResiHub app.
+const SYSTEM_PROMPT = `You are ResiHub AI Assistant — a friendly, helpful residential society support chatbot.
 
-Your personality:
-- Warm, professional and concise
-- Use emojis sparingly but effectively
-- Format responses with **bold** for key points
-- Keep answers under 150 words unless the issue needs detail
+CONSTRAINTS:
+- For flat transfer approvals, maintenance bill changes, or owner info, ALWAYS say: "Please contact the apartment admin for more information/modifications."
+- Greetings: Respond with specific variations (Hi!, Hello!, Hey!, Good morning!, etc.)
+- Formatting: Use **bold** for emphasis. Keep it concise.
 
-You help residents with:
+TROUBLESHOOTING (Image Scenario Logic):
+1. Broken Lift: Malfunctioning and not operating properly. Action: Management should call maintenance and restrict usage.
+2. Cracked Parking: Structure risk. Action: Inform maintenance/management immediately.
+3. Water Leakage (Corridor): Dripping/stains. Cause: Plumbing issue or upper floor leak.
+4. Broken Staircase Railing: Danger of falling.
+5. Street Light: Night safety complaint.
+6. Garbage Overflow: Housekeeping should clear immediately.
+7. Broken Security Gate: Security risk (unauthorized entry).
+8. Fire Extinguisher Missing: Safety risk (no protection in emergency).
+9. Lift Button: Damaged control button needing repair.
+10. Water Tap Leak: Water wastage issue.
+11. CCTV Damaged: Reduces security monitoring.
+12. Cracked Pool Tile: Injury risk.
+13. Repeated Leakage: Root cause fix/plumbing inspection needed.
+14. Power Backup: Danger of power outages during emergencies.
 
-MAINTENANCE ISSUES:
-- Water leaks → Turn off main valve, place bucket, file complaint, call plumber +91-9876543210
-- No water supply → Check valve, see Announcements, contact admin
-- Power cuts → Check circuit breaker, call electrician +91-9123456780, BESCOM: 1912
-- Electrical hazards/sparks → Turn off breaker, evacuate, call 101 (Fire)
-- AC not working → Check filter, file complaint, tech visits in 24-48hrs
-- Clogged drain/toilet → Use plunger, hot water + baking soda, file complaint if persists
-- Gas leak → Don't touch switches, open windows, turn off regulator, evacuate, call 1906
-- Lift stuck → Press alarm button, call +91-9988776655, stay calm
-
-PAYMENTS:
-- Maintenance fee due on 5th every month, 2% late fee
-- Pay via Payments menu → UPI/Card/Net Banking
-- Receipt auto-downloaded after payment
-
-COMPLAINTS:
-- File via My Complaints → File Complaint
-- Urgent (water/electric): 2-4 hrs | High: 24 hrs | Normal: 48-72 hrs
-
-VISITORS:
-- Register via Visitors menu → Register Visitor
-- Enter name, phone, vehicle, date/time
-- Delivery: same process, OTP shared at gate
-
-EMERGENCY CONTACTS:
-- Fire: 101 | Ambulance: 108 | Police: 100 | National: 112
-- Society Security: +91-9800001234
-- Society Admin: +91-9800005678
-
-SOCIETY INFO:
-- Quiet hours: 10 PM – 7 AM
-- Visitor parking: max 8 hours
-- No smoking in lifts/common areas
-- Pest control: file complaint under My Complaints → Pest Control
-
-For general conversation (greetings, thanks, goodbye) respond naturally and warmly as a helpful assistant.
-If asked something outside your knowledge, guide them to contact admin via Community Chat.`;
+MAINTENANCE EXTRAS:
+- Water leaks → Turn off main valve, call plumber +91-9876543210
+- Power cuts → Electrician +91-9123456780
+- Gas leak → Call 1906 immediately.
+- Emergency: Fire 101, Ambulance 108, Police 100.`;
 
 // ─────────────────────────────────────────────────────────────
-//  LOCAL FALLBACK ENGINE  (if API fails)
+//  LOCAL FALLBACK ENGINE
 // ─────────────────────────────────────────────────────────────
-function getLocalResponse(input) {
+function getLocalResponse(input, hasImage = false) {
     const msg = input.toLowerCase().trim();
 
-    if (msg === "hi" || msg === "hello" || msg === "hey" || msg.includes("good morning") || msg.includes("good evening"))
-        return "👋 Hello! I'm your **ResiHub AI Assistant**. How can I help you today?\n\nYou can ask about maintenance, payments, complaints, visitors, or emergencies!";
-    else if (msg.includes("thank") || msg.includes("thanks") || msg.includes("thx"))
-        return "😊 You're very welcome! Feel free to ask anything else. Have a great day! 🏠";
-    else if (msg.includes("bye") || msg.includes("goodbye"))
-        return "👋 Goodbye! Take care. I'm always here if you need help!";
-    else if (msg.includes("water leak") || msg.includes("pipe leak") || msg.includes("leaking"))
-        return "🚰 **Water Leak:**\n1. Turn off the main water valve.\n2. Place a bucket under the leak.\n3. File a complaint via **My Complaints**.\n4. Emergency plumber: **+91-9876543210**";
-    else if (msg.includes("no water") || msg.includes("water supply"))
-        return "💧 **No Water Supply:**\n1. Check if your main valve is open.\n2. Check **Announcements** for scheduled cuts.\n3. Contact admin via **Community Chat**.";
-    else if (msg.includes("power cut") || msg.includes("no electricity") || msg.includes("no power"))
-        return "⚡ **Power Cut:**\n1. Check your circuit breaker.\n2. Ask neighbours if it's building-wide.\n3. Electrician: **+91-9123456780** | BESCOM: **1912**";
-    else if (msg.includes("payment") || msg.includes("dues") || msg.includes("fee"))
-        return "💳 **Payments:**\nGo to **Payments** in the menu → Pay Now.\nDue date: **5th of every month**. Late fee: 2%/month.";
-    else if (msg.includes("complaint") || msg.includes("complain"))
-        return "📋 **File a Complaint:**\nGo to **My Complaints → File Complaint**.\nUrgent issues resolved in **2–4 hours**.";
-    else if (msg.includes("visitor") || msg.includes("guest"))
-        return "🧑‍🤝‍🧑 **Register Visitor:**\nGo to **Visitors → Register Visitor**.\nEnter name, phone, vehicle and expected time.";
-    else if (msg.includes("emergency") || msg.includes("fire") || msg.includes("ambulance"))
-        return "🚨 **Emergency:**\n• Fire: 101 | Ambulance: 108 | Police: 100\n• Society Security: **+91-9800001234**\n\nUse the **Emergency** section in the app to report an incident.";
-    else if (msg.includes("ac") || msg.includes("air conditioner"))
-        return "❄️ **AC Issue:**\n1. Check the filter is clean.\n2. Ensure circuit breaker is on.\n3. File complaint → technician visits in **24–48 hrs**.";
-    else if (msg.includes("lift") || msg.includes("elevator"))
-        return "🛗 **Lift Issue / Stuck:**\nPress the **emergency alarm button** inside the lift.\nCall: **+91-9988776655**. Stay calm — help comes in 10–20 min.";
-    else if (msg.includes("gas"))
-        return "🔥 **Gas Leak — URGENT:**\n1. Don't touch any switches.\n2. Open all windows.\n3. Turn off gas regulator.\n4. Evacuate and call **1906** or **101**.";
-    else if (msg.includes("parking"))
-        return "🚗 **Parking:** Your slot matches your apartment (e.g. B-201 → Slot B-201).\nFor unauthorized vehicles, call Security: **+91-9800001234**.";
-    else if (msg.includes("noise") || msg.includes("loud"))
-        return "🔊 **Noise Complaint:** Quiet hours are **10 PM – 7 AM**.\nFile a complaint via **My Complaints → Noise** — your identity stays anonymous.";
-    else if (msg.includes("help") || msg.includes("menu") || msg.includes("what can you"))
-        return "🤖 I can help with:\n• Maintenance (leaks, AC, power)\n• Payments & dues\n• Filing complaints\n• Visitor registration\n• Emergencies\n• Society rules & announcements\n\nJust ask! 😊";
-    else
-        return "🤔 I'm not sure about that. Try asking about maintenance, payments, complaints, or visitors.\n\nOr contact admin via **Community Chat** for personalised help.";
+    // Greetings
+    if (msg === "hi") return "Hi! How can I help you today?";
+    if (msg === "hello") return "Hello! How may I assist you?";
+    if (msg === "hey") return "Hey! What can I do for you?";
+    if (msg.includes("good morning")) return "Good morning! How can I assist you today?";
+    if (msg.includes("good afternoon")) return "Good afternoon! How may I help you?";
+    if (msg.includes("good evening")) return "Good evening! How can I assist you?";
+
+    // Admin-Only Redirects
+    if (msg.includes("flat transfer") || msg.includes("approve my flat"))
+        return "I'm not sure about that. Please contact the apartment admin for more information.";
+    if (msg.includes("maintenance bill") || msg.includes("change my bill"))
+        return "Please contact the apartment admin for billing modifications.";
+    if (msg.includes("owner of") || msg.includes("who is the owner"))
+        return "Please contact the admin for resident information.";
+
+    // Image-Based Troubleshooting Logic (Keywords + Image Context)
+    if (hasImage || msg.includes("image") || msg.includes("shown in the")) {
+        if (msg.includes("lift") || msg.includes("elevator")) {
+            if (msg.includes("action") || msg.includes("take")) return "Management should immediately call elevator maintenance and restrict usage for safety.";
+            return "The elevator is malfunctioning and not operating properly.";
+        }
+        if (msg.includes("parking") || msg.includes("crack")) {
+            if (msg.includes("who") || msg.includes("inform")) return "The maintenance team and apartment management should be informed immediately.";
+            return "Yes, cracks in the parking floor can weaken the structure and pose safety risks.";
+        }
+        if (msg.includes("leakage") || msg.includes("ceiling") || msg.includes("corridor")) {
+            if (msg.includes("cause")) return "It may be due to a plumbing issue or a leaking pipe from the upper floor.";
+            return "There is a water leakage in the corridor ceiling.";
+        }
+        if (msg.includes("staircase") || msg.includes("railing")) return "A loose railing can cause residents to lose balance and fall.";
+        if (msg.includes("street light") || msg.includes("not working")) return "A complaint about a non-functioning street light in the apartment premises.";
+        if (msg.includes("garbage") || msg.includes("trash") || msg.includes("overflow")) {
+            if (msg.includes("action")) return "Housekeeping staff should clear the garbage immediately to maintain hygiene.";
+            return "Garbage is not being cleared properly and bins are overflowing.";
+        }
+        if (msg.includes("gate") || msg.includes("security gate")) return "It creates a security risk as unauthorized people can enter the premises.";
+        if (msg.includes("fire extinguisher") || msg.includes("missing")) return "Without a fire extinguisher, residents are not protected in case of emergency.";
+        if (msg.includes("button") && msg.includes("lift")) return "The lift control button is damaged and needs repair.";
+        if (msg.includes("tap") || msg.includes("water wastage")) return "There is a leaking tap causing water wastage.";
+        if (msg.includes("cctv") || msg.includes("camera")) return "A damaged CCTV camera reduces security monitoring in the apartment.";
+        if (msg.includes("swimming pool") || msg.includes("tile")) return "Broken tiles can cause injuries to residents using the pool.";
+        if (msg.includes("repeated leak")) return "Management should conduct a full plumbing inspection to identify and permanently fix the root cause.";
+        if (msg.includes("power backup") || msg.includes("generator")) return "Residents may face power outages during emergencies.";
+    }
+
+    // General Maintenance
+    if (msg.includes("water") && (msg.includes("leak") || msg.includes("leaking")))
+        return "🚰 **Water Leak:** Turn off main valve, call plumber (**+91-9876543210**) and file a complaint.";
+    if (msg.includes("power") || msg.includes("electric"))
+        return "⚡ **Power/Electric Issue:** Check breaker. Electrician: **+91-9123456780**. Fire: **101**.";
+
+    // Help & Generic
+    if (msg.includes("help") || msg.includes("can you"))
+        return "🤖 I can help with maintenance, payments, visitors, and emergencies. Try asking about a specific issue!";
+
+    return "🤔 I'm not sure about that. Please contact the admin or use the Community Chat for more help.";
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -225,7 +229,7 @@ export default function AIAssistant() {
                 botText = result.response.text();
             } else {
                 // Fallback to local engine
-                botText = getLocalResponse(text);
+                botText = getLocalResponse(text, !!capturedImage);
             }
 
             setMessages((p) => [...p, { role: "bot", text: botText }]);
@@ -239,11 +243,11 @@ export default function AIAssistant() {
 
             let botText;
             if (is401) {
-                botText = "🔑 API key issue detected. Switching to offline mode...\n\n" + getLocalResponse(text);
+                botText = "🔑 API key issue detected. Switching to offline mode...\n\n" + getLocalResponse(text, !!capturedImage);
             } else if (is429) {
-                botText = "⏳ Too many requests right now. Here's what I know:\n\n" + getLocalResponse(text);
+                botText = "⏳ Too many requests right now. Here's what I know:\n\n" + getLocalResponse(text, !!capturedImage);
             } else {
-                botText = getLocalResponse(text);
+                botText = getLocalResponse(text, !!capturedImage);
             }
 
             setMessages((p) => [...p, { role: "bot", text: botText }]);
