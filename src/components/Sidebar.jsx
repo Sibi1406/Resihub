@@ -1,9 +1,9 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import {
     Home, FileText, User, AlertTriangle, Megaphone,
-    Users, Settings, LogOut, CreditCard, Clock, History,
-    MessageCircle, UserPlus, Shield
+    Users, Settings, CreditCard, Clock, History,
+    MessageCircle, UserPlus
 } from "lucide-react";
 
 const navItems = {
@@ -17,12 +17,12 @@ const navItems = {
         { to: "/admin/chat", label: "Community Chat", icon: <MessageCircle className="w-5 h-5" /> },
         { to: "/admin/residents", label: "Residents", icon: <User className="w-5 h-5" /> },
         { to: "/admin/settings", label: "Settings", icon: <Settings className="w-5 h-5" /> },
+        { to: "/admin/profile", label: "Profile", icon: <User className="w-5 h-5" /> },
     ],
     resident: [
         { to: "/resident", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
         { to: "/resident/complaints", label: "My Complaints", icon: <FileText className="w-5 h-5" /> },
         { to: "/resident/visitors", label: "Visitors", icon: <User className="w-5 h-5" /> },
-        { to: "/resident/visitor-history", label: "Visitor History", icon: <Clock className="w-5 h-5" /> },
         { to: "/resident/payments", label: "Payments", icon: <CreditCard className="w-5 h-5" /> },
         { to: "/resident/emergency", label: "Emergency", icon: <AlertTriangle className="w-5 h-5" /> },
         { to: "/resident/announcements", label: "Announcements", icon: <Megaphone className="w-5 h-5" /> },
@@ -31,7 +31,7 @@ const navItems = {
     ],
     security: [
         { to: "/security", label: "Dashboard", icon: <Home className="w-5 h-5" /> },
-        { to: "/security/preapproved", label: "Pre-Approved Visitors", icon: <FileText className="w-5 h-5" /> },
+        { to: "/security/preapproved", label: "Informed Visitors", icon: <FileText className="w-5 h-5" /> },
         { to: "/security/manual", label: "Manual Entry", icon: <UserPlus className="w-5 h-5" /> },
         { to: "/security/active", label: "Active Visitors", icon: <Users className="w-5 h-5" /> },
         { to: "/security/history", label: "Visitor History", icon: <History className="w-5 h-5" /> },
@@ -42,14 +42,9 @@ const navItems = {
 };
 
 export default function Sidebar({ open, onClose }) {
-    const { role, userData, logout } = useAuth();
-    const navigate = useNavigate();
+    const { role, userData } = useAuth();
     const items = navItems[role] || [];
 
-    const handleLogout = async () => {
-        await logout();
-        navigate("/login");
-    };
 
     const roleLabel = {
         admin: "Administrator",
@@ -129,20 +124,12 @@ export default function Sidebar({ open, onClose }) {
                     </ul>
                 </nav>
 
-                {/* Status + Logout */}
+                {/* Status */}
                 <div className="px-4 py-4 border-t border-slate-200/60">
-                    <div className="flex items-center gap-2 mb-3 px-1">
+                    <div className="flex items-center gap-2 px-1">
                         <span className="inline-block w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0" aria-hidden />
                         <span className="text-[var(--text-caption)] text-slate-500">All services operational</span>
                     </div>
-                    <button
-                        type="button"
-                        onClick={handleLogout}
-                        className="w-full flex items-center justify-center gap-3 min-h-[var(--touch-min)] px-4 py-3 rounded-xl text-[var(--text-small)] font-medium text-slate-600 hover:bg-red-50 hover:text-red-600 transition-colors cursor-pointer"
-                    >
-                        <LogOut className="w-4 h-4 flex-shrink-0" />
-                        Sign Out
-                    </button>
                 </div>
             </aside>
         </>

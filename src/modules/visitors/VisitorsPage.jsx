@@ -23,7 +23,7 @@ export default function VisitorsPage() {
         apartmentNumber: "",
         expectedDateTime: "",
         purpose: "",
-        type: role === "security" ? "manual" : "preapproved",
+        type: role === "security" ? "manual" : "informed",
     });
     const [submitting, setSubmitting] = useState(false);
 
@@ -55,7 +55,7 @@ export default function VisitorsPage() {
                 createdBy: user.uid,
                 createdByName: userData?.name || "",
             });
-            toast.success(form.type === "preapproved" ? "Visitor pre-approved" : "Visitor added");
+            toast.success(form.type === "informed" ? "Visitor informed to security" : "Visitor added");
             setShowModal(false);
             setForm({
                 name: "",
@@ -63,7 +63,7 @@ export default function VisitorsPage() {
                 apartmentNumber: "",
                 expectedDateTime: "",
                 purpose: "",
-                type: role === "security" ? "manual" : "preapproved",
+                type: role === "security" ? "manual" : "informed",
             });
         } catch {
             toast.error("Failed to add visitor");
@@ -103,9 +103,11 @@ export default function VisitorsPage() {
                 {(role === "resident" || role === "security") && (
                     <button
                         onClick={() => setShowModal(true)}
-                        className="px-4 py-2.5 bg-primary-600 text-white text-sm font-semibold rounded-xl hover:bg-primary-700 transition-colors cursor-pointer"
+                        className="flex items-center gap-2 px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer"
+                        style={{ background: "linear-gradient(135deg, #E5B94B, #C97B1A)" }}
                     >
-                        {role === "resident" ? "+ Pre-approve Visitor" : "+ Add Visitor"}
+                        <span className="text-lg leading-none">+</span>
+                        {role === "resident" ? "Register Visitor" : "Add Visitor"}
                     </button>
                 )}
             </div>
@@ -148,8 +150,8 @@ export default function VisitorsPage() {
                                 <th className="px-5 py-3 font-medium">Apartment</th>
                                 <th className="px-5 py-3 font-medium">Type</th>
                                 <th className="px-5 py-3 font-medium">Status</th>
-                        <th className="px-5 py-3 font-medium">Expected</th>
-                        <th className="px-5 py-3 font-medium">Purpose</th>
+                                <th className="px-5 py-3 font-medium">Expected</th>
+                                <th className="px-5 py-3 font-medium">Purpose</th>
                                 <th className="px-5 py-3 font-medium">Entry</th>
                                 <th className="px-5 py-3 font-medium">Exit</th>
                                 {role === "security" && <th className="px-5 py-3 font-medium">Actions</th>}
@@ -185,7 +187,7 @@ export default function VisitorsPage() {
                                         {role === "security" && (
                                             <td className="px-5 py-3">
                                                 <div className="flex gap-1.5">
-                                                    {v.status === "preapproved" && (
+                                                    {(v.status === "informed" || v.status === "preapproved") && (
                                                         <button
                                                             onClick={() => handleEntry(v.id)}
                                                             className="px-2.5 py-1 text-xs font-medium bg-emerald-50 text-emerald-600 rounded-lg hover:bg-emerald-100 transition-colors cursor-pointer"
@@ -212,71 +214,88 @@ export default function VisitorsPage() {
                 </div>
             </div>
 
-            {/* Add visitor modal */}
-            <Modal open={showModal} onClose={() => setShowModal(false)} title={role === "resident" ? "Pre-approve Visitor" : "Add Visitor"}>
+            <Modal open={showModal} onClose={() => setShowModal(false)} title={role === "resident" ? "Register a Visitor" : "Add Visitor"}>
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Visitor Name</label>
-                        <input
-                            required
-                            value={form.name}
-                            onChange={(e) => setForm({ ...form, name: e.target.value })}
-                            className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            placeholder="Full name"
-                        />
+                    {/* Visual header */}
+                    <div className="flex items-center gap-3 p-3 rounded-xl mb-2" style={{ background: "linear-gradient(135deg, #FEF3C7, #FDE68A)" }}>
+                        <div className="w-10 h-10 rounded-xl flex items-center justify-center text-xl" style={{ background: "linear-gradient(135deg, #E5B94B, #C97B1A)" }}>
+                            🧑‍🤝‍🧑
+                        </div>
+                        <div>
+                            <div className="text-sm font-semibold text-amber-900">Visitor Registration</div>
+                            <div className="text-xs text-amber-700">Security will be informed on submission</div>
+                        </div>
                     </div>
-                    <div>
-                        <label className="block text-sm font-medium text-slate-700 mb-1">Phone</label>
-                        <input
-                            required
-                            value={form.phone}
-                            onChange={(e) => setForm({ ...form, phone: e.target.value })}
-                            className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                            placeholder="Phone number"
-                        />
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Visitor Name *</label>
+                            <input
+                                required
+                                value={form.name}
+                                onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+                                placeholder="Full name"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Phone Number *</label>
+                            <input
+                                required
+                                type="tel"
+                                value={form.phone}
+                                onChange={(e) => setForm({ ...form, phone: e.target.value })}
+                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+                                placeholder="+91 XXXXX XXXXX"
+                            />
+                        </div>
                     </div>
+
                     {role === "resident" && (
-                        <>
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Expected Date & Time</label>
+                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Expected Date & Time *</label>
                                 <input
                                     type="datetime-local"
                                     required
                                     value={form.expectedDateTime}
                                     onChange={(e) => setForm({ ...form, expectedDateTime: e.target.value })}
-                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
                                 />
                             </div>
                             <div>
-                                <label className="block text-sm font-medium text-slate-700 mb-1">Purpose</label>
+                                <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Purpose of Visit *</label>
                                 <input
                                     required
                                     value={form.purpose}
                                     onChange={(e) => setForm({ ...form, purpose: e.target.value })}
-                                    className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
-                                    placeholder="Reason for visit"
+                                    className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
+                                    placeholder="e.g. Family visit, Delivery"
                                 />
                             </div>
-                        </>
+                        </div>
                     )}
+
                     {role === "security" && (
                         <div>
-                            <label className="block text-sm font-medium text-slate-700 mb-1">Apartment Number</label>
+                            <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Apartment Number *</label>
                             <input
                                 required
                                 value={form.apartmentNumber}
                                 onChange={(e) => setForm({ ...form, apartmentNumber: e.target.value })}
-                                className="w-full px-3 py-2 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-primary-500"
+                                className="w-full px-3 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:border-amber-400 focus:ring-2 focus:ring-amber-100 transition-all"
                                 placeholder="e.g. A-102"
                             />
                         </div>
                     )}
+
                     <button
                         type="submit"
                         disabled={submitting}
-                        className="w-full py-2.5 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors disabled:opacity-60 cursor-pointer"
+                        className="w-full py-3 text-white font-semibold rounded-xl transition-all disabled:opacity-60 cursor-pointer shadow-md hover:shadow-lg"
+                        style={{ background: "linear-gradient(135deg, #E5B94B, #C97B1A)" }}
                     >
-                        {submitting ? "Adding..." : role === "resident" ? "Pre-approve" : "Add Visitor"}
+                        {submitting ? "Registering..." : role === "resident" ? "✓ Inform Security" : "✓ Add Visitor"}
                     </button>
                 </form>
             </Modal>

@@ -50,7 +50,7 @@ export default function ResidentDashboard() {
 
         // visitors scheduled (preapproved) for my apartment
         unsubs.push(
-            subscribeVisitors({ apartmentNumber: userData?.apartmentNumber, status: "preapproved" }, (list) => {
+            subscribeVisitors({ apartmentNumber: userData?.apartmentNumber, status: "informed" }, (list) => {
                 const cnt = list.length;
                 setScheduledVisitors(cnt);
                 if (prevCounts.current.visitors !== cnt) {
@@ -107,7 +107,7 @@ export default function ResidentDashboard() {
                 >
                     {[
                         { icon: <FileText className="w-5 h-5" />, label: "Active Complaints", value: activeComplaints, color: "blue", path: "/resident/complaints", sub: "tap to view" },
-                        { icon: <UserCheck className="w-5 h-5" />, label: "Visitors Scheduled", value: scheduledVisitors, color: "primary", path: "/resident/visitors", sub: "tap to manage" },
+                        { icon: <UserCheck className="w-5 h-5" />, label: "Visitors Informed", value: scheduledVisitors, color: "primary", path: "/resident/visitors", sub: "tap to manage" },
                         { icon: <AlertTriangle className="w-5 h-5" />, label: "Active Emergencies", value: activeEmergencies, color: "red", path: "/resident/emergency", sub: "tap to report" },
                         { icon: <MessageCircle className="w-5 h-5" />, label: "Community Chat", value: "Live", color: "violet", path: "/resident/chat", sub: "tap to join" },
                     ].map((card) => (

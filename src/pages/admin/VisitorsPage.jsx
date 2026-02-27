@@ -42,7 +42,7 @@ export default function AdminVisitorsPage() {
             <div className="grid grid-cols-3 gap-4 mb-6">
                 {[
                     { label: "Inside", status: "inside", color: "border-emerald-400 text-emerald-600" },
-                    { label: "Pre-Approved", status: "preapproved", color: "border-violet-400 text-violet-600" },
+                    { label: "Informed", status: "informed", color: "border-violet-400 text-violet-600" },
                     { label: "Exited", status: "exited", color: "border-slate-300 text-slate-600" },
                 ].map(({ label, status, color }) => (
                     <div key={status} className={`card rounded-xl p-4 text-center border-l-4 cursor-pointer hover:shadow-md transition-all ${color}`}
@@ -74,7 +74,7 @@ export default function AdminVisitorsPage() {
                 >
                     <option value="all">All</option>
                     <option value="inside">Inside</option>
-                    <option value="preapproved">Pre-Approved</option>
+                    <option value="informed">Informed</option>
                     <option value="exited">Exited</option>
                 </select>
             </div>

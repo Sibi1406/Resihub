@@ -86,9 +86,10 @@ export default function ComplaintsPage() {
                 {role !== "security" && (
                     <button
                         onClick={() => setShowModal(true)}
-                        className="px-4 py-2.5 bg-primary-600 text-white text-sm font-semibold rounded-xl hover:bg-primary-700 transition-colors cursor-pointer"
+                        className="flex items-center gap-2 px-5 py-2.5 text-white text-sm font-semibold rounded-xl transition-all shadow-md hover:shadow-lg cursor-pointer"
+                        style={{ background: "linear-gradient(135deg, #E5B94B, #C97B1A)" }}
                     >
-                        + Raise Complaint
+                        <span className="text-lg leading-none">+</span> Raise Complaint
                     </button>
                 )}
             </div>
@@ -110,8 +111,9 @@ export default function ComplaintsPage() {
                     <button
                         key={f}
                         onClick={() => setFilter(f)}
-                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors capitalize cursor-pointer
-              ${filter === f ? "bg-primary-600 text-white" : "text-slate-600 hover:bg-slate-50"}`}
+                        className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize cursor-pointer
+              ${filter === f ? "text-white shadow-sm" : "text-slate-600 hover:bg-slate-50"}`}
+                        style={filter === f ? { background: "linear-gradient(135deg, #E5B94B, #C97B1A)" } : {}}
                     >
                         {f}
                     </button>
@@ -242,7 +244,8 @@ export default function ComplaintsPage() {
                     <button
                         type="submit"
                         disabled={submitting}
-                        className="w-full py-2.5 bg-primary-600 text-white font-semibold rounded-xl hover:bg-primary-700 transition-colors disabled:opacity-60 cursor-pointer"
+                        className="w-full py-2.5 text-white font-semibold rounded-xl transition-all disabled:opacity-60 cursor-pointer shadow-md hover:shadow-lg"
+                        style={{ background: "linear-gradient(135deg, #E5B94B, #C97B1A)" }}
                     >
                         {submitting ? "Submitting..." : "Submit Complaint"}
                     </button>

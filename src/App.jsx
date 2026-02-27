@@ -17,6 +17,7 @@ import AdminVisitorsPage from "./pages/admin/VisitorsPage";
 import AdminEmergenciesPage from "./pages/admin/EmergenciesPage";
 import AdminPaymentsPage from "./pages/admin/PaymentsPage";
 import AdminChatPage from "./pages/admin/ChatPage";
+import AdminProfilePage from "./pages/admin/ProfilePage";
 
 // Resident pages
 import ResidentDashboard from "./pages/ResidentDashboard";
@@ -65,6 +66,7 @@ export default function App() {
       <Route path="/admin/chat" element={<Protected roles={["admin"]}><AdminChatPage /></Protected>} />
       <Route path="/admin/residents" element={<Protected roles={["admin"]}><AdminResidentsPage /></Protected>} />
       <Route path="/admin/settings" element={<Protected roles={["admin"]}><AdminSettingsPage /></Protected>} />
+      <Route path="/admin/profile" element={<Protected roles={["admin"]}><AdminProfilePage /></Protected>} />
 
       {/* ── Resident Routes ── */}
       <Route path="/resident" element={<Protected roles={["resident"]}><ResidentDashboard /></Protected>} />

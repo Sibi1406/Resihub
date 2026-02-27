@@ -31,7 +31,7 @@ const routeLabels = {
     "/resident/chat": "Community Chat",
     "/resident/profile": "Profile",
     "/security": "Dashboard",
-    "/security/preapproved": "Pre-Approved",
+    "/security/preapproved": "Informed Visitors",
     "/security/manual": "Manual Entry",
     "/security/active": "Active Visitors",
     "/security/history": "History",
@@ -102,7 +102,7 @@ export default function DashboardLayout({ children }) {
             }));
         } else if (role === "security") {
             unsubs.push(subscribeActiveEmergencies((e) => { bump(e.length); }));
-            unsubs.push(subscribeVisitors({ status: "preapproved" }, (v) => { bump(v.length); }));
+            unsubs.push(subscribeVisitors({ status: "informed" }, (v) => { bump(v.length); }));
         } else if (role === "resident") {
             unsubs.push(subscribeActiveEmergencies((e) => {
                 const mine = e.filter(x => x.raisedBy === userData?.uid);

@@ -20,7 +20,7 @@ function Toast({ toast }) {
 }
 
 export default function SecurityDashboard() {
-    const [preapproved, setPreapproved] = useState([]);
+    const [informed, setInformed] = useState([]);
     const [active, setActive] = useState([]);
     const [history, setHistory] = useState([]);
     const [emergencies, setEmergencies] = useState([]);
@@ -36,7 +36,7 @@ export default function SecurityDashboard() {
     const purposeRef = useRef();
 
     useEffect(() => {
-        const u1 = subscribeVisitors({ status: 'preapproved' }, setPreapproved);
+        const u1 = subscribeVisitors({ status: 'informed' }, setInformed);
         const u2 = subscribeActiveVisitors(setActive);
         const u3 = subscribeVisitors({ status: 'exited' }, setHistory);
         const u4 = subscribeActiveEmergencies(setEmergencies);
@@ -132,7 +132,7 @@ export default function SecurityDashboard() {
                     <StatCard icon={<UserPlus className="w-6 h-6" />} label="Today's Entries" value={history.length + active.length} color="primary" />
                 </div>
                 <div style={{ animation: 'fadeInUp 0.5s ease-out 0.3s both' }}>
-                    <StatCard icon={<CheckCircle className="w-6 h-6" />} label="Pre-Approved Pending" value={preapproved.length} color="amber" />
+                    <StatCard icon={<CheckCircle className="w-6 h-6" />} label="Informed Pending" value={informed.length} color="amber" />
                 </div>
                 <div style={{ animation: 'fadeInUp 0.5s ease-out 0.4s both' }}>
                     <StatCard icon={<AlertTriangle className="w-6 h-6" />} label="Active Emergencies" value={emergencies.length} color="red" />
@@ -142,7 +142,7 @@ export default function SecurityDashboard() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6" style={{ animation: 'fadeInUp 0.6s ease-out 0.3s both' }}>
                 <div className="card p-5 lg:col-span-2 hover:shadow-lg transition-shadow duration-300">
                     <div className="flex items-center justify-between mb-4">
-                        <h3 className="text-lg font-semibold text-slate-800">Pre-Approved Visitors</h3>
+                        <h3 className="text-lg font-semibold text-slate-800">Informed Visitors</h3>
                         <div className="text-xs text-slate-500 bg-slate-100 px-2 py-1 rounded">Expected time</div>
                     </div>
                     <div className="overflow-x-auto">
@@ -158,13 +158,13 @@ export default function SecurityDashboard() {
                                 </tr>
                             </thead>
                             <tbody>
-                                {preapproved.slice(0, 5).map((v) => (
+                                {informed.slice(0, 5).map((v) => (
                                     <tr key={v.id} className="align-middle border-b border-slate-50 hover:bg-amber-50/30 transition-colors">
                                         <td className="py-3 font-medium text-slate-800">{v.name}</td>
                                         <td className="py-3 text-slate-600">{v.phone}</td>
                                         <td className="py-3 text-slate-600">{v.apartmentNumber}</td>
                                         <td className="py-3 text-xs text-slate-500">{v.expectedTime ? new Date(v.expectedTime.seconds * 1000).toLocaleString() : '—'}</td>
-                                        <td className="py-3"><span className="badge-yellow">Pre-approved</span></td>
+                                        <td className="py-3"><span className="badge-yellow">Informed</span></td>
                                         <td className="py-3 text-right">
                                             <ActionButton className="px-3 py-1.5 rounded-lg mr-2 border hover:bg-slate-50 transition-colors text-sm font-medium" onClick={() => handleRejectPre(v.id)}>Reject</ActionButton>
                                             <ActionButton className="px-3 py-1.5 rounded-lg bg-[var(--mustard)] text-white hover:shadow-md transition-all text-sm font-medium" onClick={() => handleGrantEntryPre(v.id)}>Grant</ActionButton>
@@ -173,11 +173,11 @@ export default function SecurityDashboard() {
                                 ))}
                             </tbody>
                         </table>
-                        {preapproved.length === 0 && <div className="text-center py-6 text-slate-400">No pending pre-approved visitors</div>}
+                        {informed.length === 0 && <div className="text-center py-6 text-slate-400">No pending informed visitors</div>}
                     </div>
                 </div>
 
-                    <div className="card p-5 hover:shadow-lg transition-shadow duration-300">
+                <div className="card p-5 hover:shadow-lg transition-shadow duration-300">
                     <h3 className="text-lg font-semibold text-slate-800 mb-3">Quick Entry</h3>
                     <p className="text-sm text-slate-600 mb-4">Add a visitor manually and grant immediate entry.</p>
                     <ActionButton onClick={() => setManualOpen(true)} className="w-full px-4 py-3 bg-[var(--mustard)] text-white rounded-lg hover:shadow-md transition-all font-medium">+ Add Manual Entry</ActionButton>
@@ -228,8 +228,8 @@ export default function SecurityDashboard() {
                             {announcements.slice(0, 3).map((a) => (
                                 <div key={a.id} className="p-3 rounded-lg border border-slate-150 hover:bg-slate-50 transition-colors">
                                     <div className="font-semibold text-slate-800">{a.title}</div>
-                                    <div className="text-xs text-slate-500 mt-1">{a.createdAt?.seconds ? new Date(a.createdAt.seconds*1000).toLocaleString() : ''}</div>
-                                    {a.body && <div className="text-sm text-slate-600 mt-2 line-clamp-2">{a.body.slice(0,120)}</div>}
+                                    <div className="text-xs text-slate-500 mt-1">{a.createdAt?.seconds ? new Date(a.createdAt.seconds * 1000).toLocaleString() : ''}</div>
+                                    {a.body && <div className="text-sm text-slate-600 mt-2 line-clamp-2">{a.body.slice(0, 120)}</div>}
                                 </div>
                             ))}
                         </div>

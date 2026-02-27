@@ -31,8 +31,10 @@ export function subscribeActiveVisitors(callback) {
 export async function addVisitor(data) {
     const entry = {
         ...data,
-        status: data.type === "preapproved" ? "preapproved" : "inside",
-        entryTime: data.type === "preapproved" ? null : serverTimestamp(),
+        visitorName: data.visitorName || data.name || "", // Align with admin dashboard
+        residentName: data.residentName || data.createdByName || "", // Align with admin dashboard
+        status: data.type === "informed" || data.type === "preapproved" ? "informed" : "inside",
+        entryTime: (data.type === "informed" || data.type === "preapproved") ? null : serverTimestamp(),
         exitTime: null,
         createdAt: serverTimestamp(),
     };
