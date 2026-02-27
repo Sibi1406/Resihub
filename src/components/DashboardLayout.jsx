@@ -166,6 +166,30 @@ export default function DashboardLayout({ children }) {
                     transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
                     className="blob blob-mustard bottom-[-10%] left-1/3 opacity-[0.04] w-[600px] h-[600px]"
                 />
+
+                {/* Subtle Watermark */}
+                <div className="watermark" />
+
+                {/* Floating decorative dots */}
+                <motion.div
+                    animate={{ y: [0, -100, 0], opacity: [0.1, 0.3, 0.1] }}
+                    transition={{ duration: 12, repeat: Infinity }}
+                    className="floating-dot top-[20%] left-[15%]"
+                />
+                <motion.div
+                    animate={{ y: [0, 80, 0], opacity: [0.1, 0.2, 0.1] }}
+                    transition={{ duration: 15, repeat: Infinity, delay: 2 }}
+                    className="floating-dot bottom-[30%] right-[25%]"
+                />
+                <motion.div
+                    animate={{ x: [0, 60, 0], opacity: [0.1, 0.2, 0.1] }}
+                    transition={{ duration: 18, repeat: Infinity, delay: 5 }}
+                    className="floating-dot top-[60%] left-[80%]"
+                />
+
+                {/* Animated Light Beams */}
+                <div className="light-beam animate-beam top-0 left-1/4" />
+                <div className="light-beam animate-beam top-1/2 left-3/4 delay-700" style={{ animationDelay: '7s' }} />
             </div>
 
             <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
