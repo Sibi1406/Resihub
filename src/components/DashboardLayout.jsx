@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "./Sidebar";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Bell, Menu, ChevronRight, X, AlertTriangle, Home, Heart, TreePine } from "lucide-react";
+import { Bell, Menu, ChevronRight, X, AlertTriangle } from "lucide-react";
 import { subscribeAllComplaints } from "../services/complaintService";
 import { subscribeActiveEmergencies } from "../services/emergencyService";
 import { subscribeAnnouncements } from "../services/announcementService";
@@ -137,82 +137,35 @@ export default function DashboardLayout({ children }) {
         : (role?.[0]?.toUpperCase() ?? "U");
 
     return (
-        <div className="flex h-screen bg-mesh overflow-hidden font-sans relative">
-            {/* Decorative Background Blobs */}
-            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        /* dashboard-root handles: watermark via ::before, mesh via ::after */
+        <div className="dashboard-root">
+
+            {/* ── Floating Particles Layer (lightweight, CSS-animated) ── */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0" aria-hidden>
+                {/* Blobs */}
                 <motion.div
-                    animate={{
-                        x: [0, 100, 0],
-                        y: [0, 50, 0],
-                        scale: [1, 1.1, 1]
-                    }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-                    className="blob blob-mustard -top-24 -left-24 opacity-[0.07]"
+                    animate={{ x: [0, 80, 0], y: [0, 40, 0], scale: [1, 1.08, 1] }}
+                    transition={{ duration: 22, repeat: Infinity, ease: "linear" }}
+                    className="blob blob-mustard -top-24 -left-24 opacity-[0.06]"
                 />
                 <motion.div
-                    animate={{
-                        x: [0, -80, 0],
-                        y: [0, 100, 0],
-                        scale: [1, 1.15, 1]
-                    }}
-                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-                    className="blob blob-amber top-1/2 -right-24 opacity-[0.05]"
-                />
-                <motion.div
-                    animate={{
-                        x: [0, 50, 0],
-                        y: [0, -50, 0]
-                    }}
-                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
-                    className="blob blob-mustard bottom-[-10%] left-1/3 opacity-[0.04] w-[600px] h-[600px]"
+                    animate={{ x: [0, -60, 0], y: [0, 80, 0], scale: [1, 1.12, 1] }}
+                    transition={{ duration: 28, repeat: Infinity, ease: "linear" }}
+                    className="blob blob-amber top-1/2 -right-20 opacity-[0.04]"
                 />
 
-                {/* Subtle Watermark */}
-                <div className="watermark" />
+                {/* Floating particles */}
+                <div className="particle particle-sm animate-floatA top-[18%] left-[12%]" />
+                <div className="particle particle-md animate-floatB top-[55%] left-[70%]" style={{ animationDelay: '1.5s' }} />
+                <div className="particle particle-sm animate-floatC bottom-[22%] left-[40%]" style={{ animationDelay: '3s' }} />
+                <div className="particle particle-lg animate-floatA top-[30%] right-[15%]" style={{ animationDelay: '2s' }} />
+                <div className="particle particle-sm animate-floatB bottom-[40%] right-[35%]" style={{ animationDelay: '0.8s' }} />
+                <div className="particle particle-md animate-floatC top-[70%] left-[8%]" style={{ animationDelay: '4s' }} />
+                <div className="particle particle-sm animate-floatA top-[12%] right-[40%]" style={{ animationDelay: '5s' }} />
 
-                {/* Floating decorative dots */}
-                <motion.div
-                    animate={{ y: [0, -100, 0], opacity: [0.1, 0.3, 0.1] }}
-                    transition={{ duration: 12, repeat: Infinity }}
-                    className="floating-dot top-[20%] left-[15%]"
-                />
-                <motion.div
-                    animate={{ y: [0, 80, 0], opacity: [0.1, 0.2, 0.1] }}
-                    transition={{ duration: 15, repeat: Infinity, delay: 2 }}
-                    className="floating-dot bottom-[30%] right-[25%]"
-                />
-                <motion.div
-                    animate={{ x: [0, 60, 0], opacity: [0.1, 0.2, 0.1] }}
-                    transition={{ duration: 18, repeat: Infinity, delay: 5 }}
-                    className="floating-dot top-[60%] left-[80%]"
-                />
-
-                {/* Floating Community Icons */}
-                <motion.div
-                    animate={{ y: [0, -40, 0], x: [0, 20, 0], rotate: [0, 10, 0] }}
-                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
-                    className="community-icon top-[15%] right-[20%]"
-                >
-                    <Home className="w-8 h-8" />
-                </motion.div>
-                <motion.div
-                    animate={{ y: [0, 30, 0], x: [0, -15, 0], rotate: [0, -15, 0] }}
-                    transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-                    className="community-icon bottom-[20%] left-[10%]"
-                >
-                    <Heart className="w-6 h-6" />
-                </motion.div>
-                <motion.div
-                    animate={{ y: [0, -50, 0], rotate: [0, 5, 0] }}
-                    transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 3 }}
-                    className="community-icon top-[40%] left-[5%]"
-                >
-                    <TreePine className="w-10 h-10" />
-                </motion.div>
-
-                {/* Animated Light Beams */}
+                {/* Subtle light beams */}
                 <div className="light-beam animate-beam top-0 left-1/4" />
-                <div className="light-beam animate-beam top-1/2 left-3/4 delay-700" style={{ animationDelay: '7s' }} />
+                <div className="light-beam animate-beam top-1/2 left-3/4" style={{ animationDelay: '7s' }} />
             </div>
 
             <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
