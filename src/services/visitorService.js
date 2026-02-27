@@ -1,6 +1,6 @@
 import {
     collection, addDoc, updateDoc, doc, query, where,
-    orderBy, onSnapshot, serverTimestamp
+    orderBy, onSnapshot, serverTimestamp, setDoc
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -66,4 +66,19 @@ export function subscribeAllResidents(callback) {
     return onSnapshot(q, (snap) => {
         callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });
+}
+
+export async function createUserProfile(uid, data) {
+    return setDoc(doc(db, "users", uid), {
+        ...data,
+        role: "resident",
+        createdAt: serverTimestamp(),
+    }, { merge: true });
+}
+
+// Note: This only deletes from Firestore, not Auth. 
+// Admin must manually delete from Auth console for full removal.
+export async function deleteUser(uid) {
+    const { deleteDoc } = await import("firebase/firestore");
+    return deleteDoc(doc(db, "users", uid));
 }

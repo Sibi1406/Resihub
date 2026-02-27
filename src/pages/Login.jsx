@@ -28,7 +28,7 @@ export default function Login() {
       const cred = await signInWithEmailAndPassword(auth, email, password);
       const snap = await getDoc(doc(db, "users", cred.user.uid));
       if (!snap.exists()) {
-        setError("User profile not found. Contact your administrator.");
+        setError("Your profile hasn't been set up yet. Please contact the administrator to register your UID.");
         setLoading(false);
         return;
       }
