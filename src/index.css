@@ -467,16 +467,23 @@
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
-    width: 80%;
-    height: 80%;
-    background-image: url('./assets/watermark-pattern.png');
+    width: 60%;
+    height: 60%;
+    background-image: url('./assets/house-watermark.png');
     background-repeat: no-repeat;
     background-position: center;
     background-size: contain;
-    opacity: 0.03;
+    opacity: 0.05;
     pointer-events: none;
     z-index: -1;
-    filter: grayscale(100%) brightness(1.2);
+  }
+
+  .community-icon {
+    position: absolute;
+    color: var(--mustard);
+    opacity: 0.1;
+    pointer-events: none;
+    z-index: 0;
   }
 
   .floating-dot {

@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import Sidebar from "./Sidebar";
 import { useAuth } from "../context/AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
-import { Bell, Menu, ChevronRight, X, AlertTriangle } from "lucide-react";
+import { Bell, Menu, ChevronRight, X, AlertTriangle, Home, Heart, TreePine } from "lucide-react";
 import { subscribeAllComplaints } from "../services/complaintService";
 import { subscribeActiveEmergencies } from "../services/emergencyService";
 import { subscribeAnnouncements } from "../services/announcementService";
@@ -186,6 +186,29 @@ export default function DashboardLayout({ children }) {
                     transition={{ duration: 18, repeat: Infinity, delay: 5 }}
                     className="floating-dot top-[60%] left-[80%]"
                 />
+
+                {/* Floating Community Icons */}
+                <motion.div
+                    animate={{ y: [0, -40, 0], x: [0, 20, 0], rotate: [0, 10, 0] }}
+                    transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+                    className="community-icon top-[15%] right-[20%]"
+                >
+                    <Home className="w-8 h-8" />
+                </motion.div>
+                <motion.div
+                    animate={{ y: [0, 30, 0], x: [0, -15, 0], rotate: [0, -15, 0] }}
+                    transition={{ duration: 14, repeat: Infinity, ease: "easeInOut", delay: 1 }}
+                    className="community-icon bottom-[20%] left-[10%]"
+                >
+                    <Heart className="w-6 h-6" />
+                </motion.div>
+                <motion.div
+                    animate={{ y: [0, -50, 0], rotate: [0, 5, 0] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "easeInOut", delay: 3 }}
+                    className="community-icon top-[40%] left-[5%]"
+                >
+                    <TreePine className="w-10 h-10" />
+                </motion.div>
 
                 {/* Animated Light Beams */}
                 <div className="light-beam animate-beam top-0 left-1/4" />
