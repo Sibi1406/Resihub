@@ -3,7 +3,8 @@ import DashboardLayout from '../../components/DashboardLayout';
 import StatCard from '../../components/StatCard';
 import Modal from '../../components/Modal';
 import { Users, FileText, UserPlus, Trash2, Info } from 'lucide-react';
-import { subscribeAllResidents, createUserProfile, deleteUser } from '../../services/visitorService';
+import { subscribeAllResidents, deleteUser } from '../../services/visitorService';
+import AddResidentModal from '../../components/admin/AddResidentModal';
 import { subscribeAllComplaints } from '../../services/complaintService';
 import { subscribeVisitors } from '../../services/visitorService';
 import toast from 'react-hot-toast';
@@ -19,16 +20,7 @@ export default function AdminResidentsPage() {
     const [addModalOpen, setAddModalOpen] = useState(false);
     const [modalTab, setModalTab] = useState('overview'); // overview, complaints, visitors
 
-    // Form state
-    const [form, setForm] = useState({
-        uid: '',
-        name: '',
-        email: '',
-        apartmentNumber: '',
-        occupancyType: 'owner',
-        phone: ''
-    });
-    const [submitting, setSubmitting] = useState(false);
+
 
     useEffect(() => {
         const unsub = subscribeAllResidents((res) => {
@@ -52,29 +44,6 @@ export default function AdminResidentsPage() {
         setModalOpen(true);
     }
 
-    const handleAddResident = async (e) => {
-        e.preventDefault();
-        if (!form.uid) return toast.error("UID is required from Firebase Auth console");
-
-        setSubmitting(true);
-        try {
-            await createUserProfile(form.uid, {
-                name: form.name,
-                email: form.email,
-                apartmentNumber: form.apartmentNumber,
-                occupancyType: form.occupancyType,
-                phone: form.phone
-            });
-            toast.success("Resident profile created successfully");
-            setAddModalOpen(false);
-            setForm({ uid: '', name: '', email: '', apartmentNumber: '', occupancyType: 'owner', phone: '' });
-        } catch (err) {
-            console.error(err);
-            toast.error("Failed to create profile");
-        } finally {
-            setSubmitting(false);
-        }
-    };
 
     const handleDelete = async (uid) => {
         if (!window.confirm("Delete this resident's profile from Firestore? (Must also be deleted from Auth console for full removal)")) return;
@@ -171,85 +140,7 @@ export default function AdminResidentsPage() {
                 </table>
             </div>
 
-            {/* Add Resident Modal */}
-            <Modal open={addModalOpen} onClose={() => setAddModalOpen(false)} title="Register Resident Profile">
-                <form onSubmit={handleAddResident} className="space-y-4">
-                    <div className="p-3 bg-blue-50 border border-blue-100 rounded-xl flex items-start gap-2 mb-2">
-                        <Info className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
-                        <p className="text-[11px] text-blue-800">
-                            <strong>Note:</strong> Create the user in Firebase Authentication first, then copy the <strong>UID</strong> here to sync their profile.
-                        </p>
-                    </div>
-
-                    <div>
-                        <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">User UID (from Auth console)</label>
-                        <input
-                            required
-                            value={form.uid}
-                            onChange={(e) => setForm({ ...form, uid: e.target.value })}
-                            className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-mustard"
-                            placeholder="e.g. kHl2J9m..."
-                        />
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Full Name</label>
-                            <input
-                                required
-                                value={form.name}
-                                onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-mustard"
-                                placeholder="Resident Name"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Email Address</label>
-                            <input
-                                required
-                                type="email"
-                                value={form.email}
-                                onChange={(e) => setForm({ ...form, email: e.target.value })}
-                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-mustard"
-                                placeholder="email@resihub.in"
-                            />
-                        </div>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-4">
-                        <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Apartment No</label>
-                            <input
-                                required
-                                value={form.apartmentNumber}
-                                onChange={(e) => setForm({ ...form, apartmentNumber: e.target.value })}
-                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-mustard"
-                                placeholder="e.g. A-101"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wider">Type</label>
-                            <select
-                                value={form.occupancyType}
-                                onChange={(e) => setForm({ ...form, occupancyType: e.target.value })}
-                                className="w-full px-4 py-2.5 rounded-xl border border-slate-200 bg-slate-50 text-sm focus:outline-none focus:ring-2 focus:ring-mustard"
-                            >
-                                <option value="owner">Owner</option>
-                                <option value="tenant">Tenant</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <button
-                        type="submit"
-                        disabled={submitting}
-                        className="w-full py-3 text-white font-bold rounded-xl transition-all disabled:opacity-60 shadow-md hover:shadow-lg mt-2"
-                        style={{ background: "linear-gradient(135deg, #E5B94B, #C97B1A)" }}
-                    >
-                        {submitting ? "Processing..." : "Create Resident Profile"}
-                    </button>
-                </form>
-            </Modal>
+            <AddResidentModal open={addModalOpen} onClose={() => setAddModalOpen(false)} />
 
             {/* Details Modal */}
             <Modal open={modalOpen && selectedResident} onClose={() => setModalOpen(false)}>
@@ -261,8 +152,8 @@ export default function AdminResidentsPage() {
                         <button
                             onClick={() => setModalTab('overview')}
                             className={`px-4 py-2 text-sm font-medium transition-colors ${modalTab === 'overview'
-                                    ? 'border-b-2 border-mustard text-mustard'
-                                    : 'text-slate-600 hover:text-slate-800'
+                                ? 'border-b-2 border-mustard text-mustard'
+                                : 'text-slate-600 hover:text-slate-800'
                                 }`}
                         >
                             Overview
@@ -270,8 +161,8 @@ export default function AdminResidentsPage() {
                         <button
                             onClick={() => setModalTab('complaints')}
                             className={`px-4 py-2 text-sm font-medium transition-colors ${modalTab === 'complaints'
-                                    ? 'border-b-2 border-mustard text-mustard'
-                                    : 'text-slate-600 hover:text-slate-800'
+                                ? 'border-b-2 border-mustard text-mustard'
+                                : 'text-slate-600 hover:text-slate-800'
                                 }`}
                         >
                             Complaints ({selectedResidentComplaints.length})
@@ -279,8 +170,8 @@ export default function AdminResidentsPage() {
                         <button
                             onClick={() => setModalTab('visitors')}
                             className={`px-4 py-2 text-sm font-medium transition-colors ${modalTab === 'visitors'
-                                    ? 'border-b-2 border-mustard text-mustard'
-                                    : 'text-slate-600 hover:text-slate-800'
+                                ? 'border-b-2 border-mustard text-mustard'
+                                : 'text-slate-600 hover:text-slate-800'
                                 }`}
                         >
                             Visitors ({selectedResidentVisitors.length})

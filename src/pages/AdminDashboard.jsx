@@ -13,6 +13,7 @@ import { resolveEmergency as svcResolveEmergency } from "../services/emergencySe
 import { subscribeAnnouncements, addAnnouncement } from "../services/announcementService";
 import { subscribeAllPayments, getCurrentMonth } from "../services/paymentService";
 import { Users, FileText, AlertTriangle, Megaphone, CreditCard, CheckCircle, ShieldAlert, UserPlus } from "lucide-react";
+import AddResidentModal from "../components/admin/AddResidentModal";
 import toast from "react-hot-toast";
 
 function safeDate(ts) {
@@ -44,6 +45,7 @@ export default function AdminDashboard() {
     const [emergencyModalOpen, setEmergencyModalOpen] = useState(false);
     const [selectedEmergency, setSelectedEmergency] = useState(null);
     const [announcementModalOpen, setAnnouncementModalOpen] = useState(false);
+    const [addResidentModalOpen, setAddResidentModalOpen] = useState(false);
     const [announcementTitle, setAnnouncementTitle] = useState("");
     const [announcementMessage, setAnnouncementMessage] = useState("");
 
@@ -171,7 +173,7 @@ export default function AdminDashboard() {
 
                     <div className="flex flex-wrap gap-2">
                         <button
-                            onClick={() => window.location.hash = '#/admin/residents'}
+                            onClick={() => setAddResidentModalOpen(true)}
                             className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:border-[#E5B94B] hover:bg-amber-50 transition-all shadow-sm"
                         >
                             <UserPlus className="w-3.5 h-3.5 text-[#E5B94B]" />
@@ -473,6 +475,8 @@ export default function AdminDashboard() {
                         </div>
                     </div>
                 </Modal>
+
+                <AddResidentModal open={addResidentModalOpen} onClose={() => setAddResidentModalOpen(false)} />
             </PageTransition>
         </DashboardLayout>
     );
