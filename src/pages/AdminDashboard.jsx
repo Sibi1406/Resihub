@@ -12,7 +12,7 @@ import { subscribeActiveEmergencies } from "../services/emergencyService";
 import { resolveEmergency as svcResolveEmergency } from "../services/emergencyService";
 import { subscribeAnnouncements, addAnnouncement } from "../services/announcementService";
 import { subscribeAllPayments, getCurrentMonth } from "../services/paymentService";
-import { Users, FileText, AlertTriangle, Megaphone, CreditCard, CheckCircle, ShieldAlert } from "lucide-react";
+import { Users, FileText, AlertTriangle, Megaphone, CreditCard, CheckCircle, ShieldAlert, UserPlus } from "lucide-react";
 import toast from "react-hot-toast";
 
 function safeDate(ts) {
@@ -161,11 +161,30 @@ export default function AdminDashboard() {
                 </AnimatePresence>
 
                 {/* Page Header */}
-                <motion.div variants={fadeInUp} initial="initial" animate="animate" className="mb-8">
-                    <h1 className="page-title">Admin Dashboard</h1>
-                    <p className="page-subtitle">
-                        {new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
-                    </p>
+                <motion.div variants={fadeInUp} initial="initial" animate="animate" className="mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                    <div>
+                        <h1 className="page-title">Admin Dashboard</h1>
+                        <p className="page-subtitle">
+                            {new Date().toLocaleDateString("en-IN", { weekday: "long", year: "numeric", month: "long", day: "numeric" })}
+                        </p>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                        <button
+                            onClick={() => window.location.hash = '#/admin/residents'}
+                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:border-[#E5B94B] hover:bg-amber-50 transition-all shadow-sm"
+                        >
+                            <UserPlus className="w-3.5 h-3.5 text-[#E5B94B]" />
+                            Add Resident
+                        </button>
+                        <button
+                            onClick={() => setAnnouncementModalOpen(true)}
+                            className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-bold text-slate-700 hover:border-[#E5B94B] hover:bg-amber-50 transition-all shadow-sm"
+                        >
+                            <Megaphone className="w-3.5 h-3.5 text-[#E5B94B]" />
+                            Post Announcement
+                        </button>
+                    </div>
                 </motion.div>
 
                 {/* Stat Cards */}
