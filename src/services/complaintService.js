@@ -8,15 +8,35 @@ import { db, storage } from "./firebase";
 const COL = "complaints";
 
 export function subscribeComplaints(filters, callback) {
-    let q = query(collection(db, COL), orderBy("createdAt", "desc"));
-    if (filters?.status) {
-        q = query(collection(db, COL), where("status", "==", filters.status), orderBy("createdAt", "desc"));
+    let q = collection(db, COL);
+
+    const constraints = [];
+    if (filters?.status && filters.status !== 'all') {
+        constraints.push(where("status", "==", filters.status));
     }
     if (filters?.raisedBy) {
-        q = query(collection(db, COL), where("raisedBy", "==", filters.raisedBy), orderBy("createdAt", "desc"));
+        constraints.push(where("raisedBy", "==", filters.raisedBy));
     }
-    return onSnapshot(q, (snap) => {
-        callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+
+    // Always sort by createdAt - Removing Firestore orderBy to avoid composite index requirement
+    // constraints.push(orderBy("createdAt", "desc"));
+
+    const finalQuery = query(q, ...constraints);
+
+    return onSnapshot(finalQuery, {
+        next: (snap) => {
+            const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
+            // Sort client-side to avoid "Missing Index" errors in Firestore
+            data.sort((a, b) => {
+                const timeA = a.createdAt?.seconds || 0;
+                const timeB = b.createdAt?.seconds || 0;
+                return timeB - timeA;
+            });
+            callback(data);
+        },
+        error: (err) => {
+            console.error("Firestore Subscribe Error:", err);
+        }
     });
 }
 
@@ -28,7 +48,7 @@ export function subscribeAllComplaints(callback) {
 }
 
 export function subscribeUserComplaints(residentId, callback) {
-    const q = query(collection(db, COL), where("residentId", "==", residentId), orderBy("createdAt", "desc"));
+    const q = query(collection(db, COL), where("raisedBy", "==", residentId), orderBy("createdAt", "desc"));
     return onSnapshot(q, (snap) => {
         callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
     });

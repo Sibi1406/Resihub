@@ -44,7 +44,7 @@ export default function ComplaintsPage() {
                 {
                     ...form,
                     raisedBy: user.uid,
-                    raisedByName: userData?.name || "",
+                    residentName: userData?.name || "",
                     apartmentNumber: userData?.apartmentNumber || "",
                 },
                 imageFile
