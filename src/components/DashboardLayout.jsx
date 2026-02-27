@@ -137,10 +137,40 @@ export default function DashboardLayout({ children }) {
         : (role?.[0]?.toUpperCase() ?? "U");
 
     return (
-        <div className="flex h-screen bg-[var(--bg-beige)] overflow-hidden font-sans">
+        <div className="flex h-screen bg-mesh overflow-hidden font-sans relative">
+            {/* Decorative Background Blobs */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+                <motion.div
+                    animate={{
+                        x: [0, 100, 0],
+                        y: [0, 50, 0],
+                        scale: [1, 1.1, 1]
+                    }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                    className="blob blob-mustard -top-24 -left-24 opacity-[0.07]"
+                />
+                <motion.div
+                    animate={{
+                        x: [0, -80, 0],
+                        y: [0, 100, 0],
+                        scale: [1, 1.15, 1]
+                    }}
+                    transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                    className="blob blob-amber top-1/2 -right-24 opacity-[0.05]"
+                />
+                <motion.div
+                    animate={{
+                        x: [0, 50, 0],
+                        y: [0, -50, 0]
+                    }}
+                    transition={{ duration: 15, repeat: Infinity, ease: "linear" }}
+                    className="blob blob-mustard bottom-[-10%] left-1/3 opacity-[0.04] w-[600px] h-[600px]"
+                />
+            </div>
+
             <Sidebar open={sidebarOpen} onClose={() => setSidebarOpen(false)} />
 
-            <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+            <div className="flex-1 flex flex-col overflow-hidden min-w-0 relative z-10">
                 {/* ── Top bar ── */}
                 <header className="sticky top-0 z-40 h-14 md:h-16 flex items-center justify-between px-4 sm:px-5 lg:px-6 topbar flex-shrink-0">
                     {/* Left: hamburger (mobile) + breadcrumb */}
