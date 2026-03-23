@@ -8,7 +8,6 @@ import { subscribeAllComplaints } from "../services/complaintService";
 import { subscribeActiveEmergencies } from "../services/emergencyService";
 import { subscribeAnnouncements } from "../services/announcementService";
 import { subscribeVisitors } from "../services/visitorService";
-import AIAssistant from "./AIAssistant";
 
 // Route → human-readable breadcrumb label
 const routeLabels = {
@@ -21,6 +20,8 @@ const routeLabels = {
     "/admin/chat": "Community Chat",
     "/admin/residents": "Residents",
     "/admin/settings": "Settings",
+    "/admin/lost-found": "Lost & Found",
+    "/admin/facility-management": "Facility Management",
     "/resident": "Dashboard",
     "/resident/complaints": "My Complaints",
     "/resident/visitors": "Visitors",
@@ -30,6 +31,8 @@ const routeLabels = {
     "/resident/announcements": "Announcements",
     "/resident/chat": "Community Chat",
     "/resident/profile": "Profile",
+    "/resident/lost-found": "Lost & Found",
+    "/resident/facility-booking": "Facility Booking",
     "/security": "Dashboard",
     "/security/preapproved": "Informed Visitors",
     "/security/manual": "Manual Entry",
@@ -37,6 +40,7 @@ const routeLabels = {
     "/security/history": "History",
     "/security/emergencies": "Emergencies",
     "/security/announcements": "Announcements",
+    "/security/lost-found": "Lost & Found",
 };
 
 const roleSections = {
@@ -81,32 +85,33 @@ export default function DashboardLayout({ children }) {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, []);
 
+    // Per-source notification counts — avoids the additive bump() inflation bug
+    const notifSources = useRef({});
+    const updateNotifCount = (key, value) => {
+        notifSources.current[key] = value;
+        const total = Object.values(notifSources.current).reduce((s, n) => s + n, 0);
+        setNotifCount(total);
+        if (value > 0) { setNotifPulse(true); setTimeout(() => setNotifPulse(false), 1200); }
+    };
+
     useEffect(() => {
         const unsubs = [];
-        let total = 0;
-
-        const bump = (n) => {
-            total += n;
-            setNotifCount(total);
-            if (n > 0) { setNotifPulse(true); setTimeout(() => setNotifPulse(false), 1200); }
-        };
 
         if (role === "admin") {
             unsubs.push(subscribeAllComplaints((c) => {
-                const active = c.filter(x => x.status !== "resolved").length;
-                bump(active);
+                updateNotifCount("complaints", c.filter(x => x.status !== "resolved").length);
             }));
             unsubs.push(subscribeActiveEmergencies((e) => {
-                bump(e.length);
+                updateNotifCount("emergencies", e.length);
                 setEmergencyBanner(e.length > 0 ? e[0] : null);
             }));
         } else if (role === "security") {
-            unsubs.push(subscribeActiveEmergencies((e) => { bump(e.length); }));
-            unsubs.push(subscribeVisitors({ status: "informed" }, (v) => { bump(v.length); }));
+            unsubs.push(subscribeActiveEmergencies((e) => updateNotifCount("emergencies", e.length)));
+            unsubs.push(subscribeVisitors({ status: "informed" }, (v) => updateNotifCount("visitors", v.length)));
         } else if (role === "resident") {
             unsubs.push(subscribeActiveEmergencies((e) => {
                 const mine = e.filter(x => x.raisedBy === userData?.uid);
-                bump(mine.length);
+                updateNotifCount("emergencies", mine.length);
                 setEmergencyBanner(mine.length > 0 ? mine[0] : null);
             }));
             unsubs.push(subscribeAnnouncements((a) => {
@@ -115,11 +120,14 @@ export default function DashboardLayout({ children }) {
                     const t = x.createdAt?.toMillis?.() ?? new Date(x.createdAt).getTime();
                     return now - t < 24 * 60 * 60 * 1000;
                 }).length;
-                bump(Math.min(recent, 5));
+                updateNotifCount("announcements", Math.min(recent, 5));
             }));
         }
 
-        return () => unsubs.forEach(u => u());
+        return () => {
+            unsubs.forEach(u => u());
+            notifSources.current = {};
+        };
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [role, userData?.uid]);
 
@@ -179,26 +187,26 @@ export default function DashboardLayout({ children }) {
                             type="button"
                             aria-label="Open menu"
                             onClick={() => setSidebarOpen(true)}
-                            className="lg:hidden min-w-[var(--touch-min)] min-h-[var(--touch-min)] w-11 h-11 flex items-center justify-center rounded-xl hover:bg-slate-100 transition-colors text-slate-500 flex-shrink-0"
+                            className="lg:hidden min-w-[var(--touch-min)] min-h-[var(--touch-min)] w-11 h-11 flex items-center justify-center rounded-xl hover:bg-white/5 transition-colors text-gray-400 flex-shrink-0"
                         >
                             <Menu className="w-5 h-5" />
                         </button>
                         {/* Mobile brand */}
-                        <span className="lg:hidden text-lg font-bold text-slate-800 tracking-tight">
+                        <span className="lg:hidden text-lg font-bold text-white tracking-tight">
                             Resi<span className="accent-mustard">Hub</span>
                         </span>
                         {/* Desktop breadcrumb */}
                         <nav className="hidden lg:flex items-center gap-2 text-[var(--text-small)]" aria-label="Breadcrumb">
-                            <span className="text-slate-500 font-medium">{roleSection}</span>
-                            <ChevronRight className="w-3.5 h-3.5 text-slate-300 flex-shrink-0" aria-hidden />
-                            <span className="font-semibold text-slate-700">{pageLabel}</span>
+                            <span className="text-gray-400 font-medium">{roleSection}</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-gray-600 flex-shrink-0" aria-hidden />
+                            <span className="font-semibold text-white">{pageLabel}</span>
                         </nav>
                     </div>
 
                     {/* Right: clock (security), bell, avatar */}
                     <div className="flex items-center gap-2">
                         {role === "security" && (
-                            <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-slate-500 bg-slate-100 rounded-lg px-3 py-1.5">
+                            <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-gray-400 bg-white/5 rounded-lg px-3 py-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                                 <LiveClock />
                             </div>
@@ -210,9 +218,9 @@ export default function DashboardLayout({ children }) {
                             aria-label={notifCount > 0 ? `${notifCount} notifications` : "Notifications"}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="relative min-w-[var(--touch-min)] min-h-[var(--touch-min)] w-11 h-11 rounded-xl hover:bg-slate-100 transition-colors flex items-center justify-center"
+                            className="relative min-w-[var(--touch-min)] min-h-[var(--touch-min)] w-11 h-11 rounded-xl hover:bg-white/5 transition-colors flex items-center justify-center"
                         >
-                            <Bell className={`w-4.5 h-4.5 ${notifPulse ? "text-[#E5B94B]" : "text-slate-500"} transition-colors`} />
+                            <Bell className={`w-4.5 h-4.5 ${notifPulse ? "text-[#E5B94B]" : "text-gray-400"} transition-colors`} />
                             <AnimatePresence>
                                 {notifCount > 0 && (
                                     <motion.span
@@ -228,20 +236,20 @@ export default function DashboardLayout({ children }) {
                         </motion.button>
 
                         {/* Divider */}
-                        <div className="w-px h-6 bg-slate-200 mx-1" />
+                        <div className="w-px h-6 bg-white/10 mx-1" />
 
                         {/* Avatar + dropdown */}
                         <div className="relative" ref={dropdownRef}>
                             <button
                                 onClick={() => setProfileOpen(p => !p)}
-                                className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-slate-100 transition-colors"
+                                className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-white/5 transition-colors"
                             >
                                 <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E5B94B] to-[#C97B1A] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                                     {initials}
                                 </div>
                                 <div className="hidden md:block text-left leading-tight">
-                                    <p className="text-xs font-semibold text-slate-700 truncate max-w-[120px]">{userData?.name || roleSection}</p>
-                                    <p className="text-[10px] text-slate-400 capitalize">{role}</p>
+                                    <p className="text-xs font-semibold text-white truncate max-w-[120px]">{userData?.name || roleSection}</p>
+                                    <p className="text-[10px] text-gray-500 capitalize">{role}</p>
                                 </div>
                             </button>
 
@@ -252,25 +260,25 @@ export default function DashboardLayout({ children }) {
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 4, scale: 0.96 }}
                                         transition={{ duration: 0.15 }}
-                                        className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-slate-100 z-50 overflow-hidden"
+                                        className="absolute right-0 top-full mt-2 w-52 bg-[#1C1C1E] rounded-xl shadow-2xl border border-white/5 z-50 overflow-hidden"
                                     >
                                         {/* User info header */}
-                                        <div className="px-4 py-3 border-b border-slate-50">
-                                            <p className="text-sm font-semibold text-slate-800 truncate">{userData?.name || roleSection}</p>
-                                            <p className="text-xs text-slate-400 truncate">{userData?.email || role}</p>
+                                        <div className="px-4 py-3 border-b border-white/5">
+                                            <p className="text-sm font-semibold text-white truncate">{userData?.name || roleSection}</p>
+                                            <p className="text-xs text-gray-500 truncate">{userData?.email || role}</p>
                                         </div>
                                         <div className="py-1">
                                             <button
                                                 onClick={() => { setProfileOpen(false); navigate(`/${role}/profile`); }}
-                                                className="w-full text-left px-4 py-2.5 text-sm text-slate-700 hover:bg-slate-50 transition-colors"
+                                                className="w-full text-left px-4 py-2.5 text-sm text-white hover:bg-white/5 transition-colors"
                                             >
                                                 My Profile
                                             </button>
                                         </div>
-                                        <div className="border-t border-slate-50 py-1">
+                                        <div className="border-t border-white/5 py-1">
                                             <button
                                                 onClick={handleLogout}
-                                                className="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors font-medium"
+                                                className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/10 transition-colors font-medium"
                                             >
                                                 Sign Out
                                             </button>
@@ -320,8 +328,7 @@ export default function DashboardLayout({ children }) {
                 </main>
             </div>
 
-            {/* AI Maintenance Assistant — residents only */}
-            {role === "resident" && <AIAssistant />}
+
         </div>
     );
 }

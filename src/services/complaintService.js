@@ -1,57 +1,42 @@
 import {
     collection, addDoc, updateDoc, doc, query, where,
-    orderBy, onSnapshot, serverTimestamp, Timestamp
+    onSnapshot, serverTimestamp
 } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "./firebase";
 
 const COL = "complaints";
 
-export function subscribeComplaints(filters, callback) {
-    let q = collection(db, COL);
+function clientSort(data) {
+    return data.sort((a, b) => (b.createdAt?.seconds || 0) - (a.createdAt?.seconds || 0));
+}
 
+export function subscribeComplaints(filters, callback) {
     const constraints = [];
-    if (filters?.status && filters.status !== 'all') {
+    if (filters?.status && filters.status !== "all") {
         constraints.push(where("status", "==", filters.status));
     }
     if (filters?.raisedBy) {
         constraints.push(where("raisedBy", "==", filters.raisedBy));
     }
-
-    // Always sort by createdAt - Removing Firestore orderBy to avoid composite index requirement
-    // constraints.push(orderBy("createdAt", "desc"));
-
-    const finalQuery = query(q, ...constraints);
-
-    return onSnapshot(finalQuery, {
-        next: (snap) => {
-            const data = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
-            // Sort client-side to avoid "Missing Index" errors in Firestore
-            data.sort((a, b) => {
-                const timeA = a.createdAt?.seconds || 0;
-                const timeB = b.createdAt?.seconds || 0;
-                return timeB - timeA;
-            });
-            callback(data);
-        },
-        error: (err) => {
-            console.error("Firestore Subscribe Error:", err);
-        }
+    const q = query(collection(db, COL), ...constraints);
+    return onSnapshot(q, {
+        next: (snap) => callback(clientSort(snap.docs.map((d) => ({ id: d.id, ...d.data() })))),
+        error: (err) => console.error("Firestore Subscribe Error:", err),
     });
 }
 
 export function subscribeAllComplaints(callback) {
-    const q = query(collection(db, COL), orderBy("createdAt", "desc"));
-    return onSnapshot(q, (snap) => {
-        callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    });
+    return onSnapshot(collection(db, COL), (snap) =>
+        callback(clientSort(snap.docs.map((d) => ({ id: d.id, ...d.data() }))))
+    );
 }
 
 export function subscribeUserComplaints(residentId, callback) {
-    const q = query(collection(db, COL), where("raisedBy", "==", residentId), orderBy("createdAt", "desc"));
-    return onSnapshot(q, (snap) => {
-        callback(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
-    });
+    const q = query(collection(db, COL), where("raisedBy", "==", residentId));
+    return onSnapshot(q, (snap) =>
+        callback(clientSort(snap.docs.map((d) => ({ id: d.id, ...d.data() }))))
+    );
 }
 
 export async function addComplaint(data, imageFile) {
@@ -65,6 +50,7 @@ export async function addComplaint(data, imageFile) {
         ...data,
         imageUrl,
         status: "pending",
+        aiCategorized: data.aiCategorized ?? false,
         createdAt: serverTimestamp(),
         resolvedAt: null,
     });
@@ -72,8 +58,6 @@ export async function addComplaint(data, imageFile) {
 
 export async function updateComplaintStatus(id, status) {
     const updates = { status };
-    if (status === "resolved") {
-        updates.resolvedAt = serverTimestamp();
-    }
+    if (status === "resolved") updates.resolvedAt = serverTimestamp();
     return updateDoc(doc(db, COL, id), updates);
 }

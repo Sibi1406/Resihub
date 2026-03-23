@@ -18,11 +18,11 @@ export default function PaymentStatusCard({ payment, loading, month, onClick }) 
         return (
             <div className="card rounded-2xl p-5 animate-pulse">
                 <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-slate-100 flex-shrink-0" />
+                    <div className="w-14 h-14 rounded-xl bg-white/5 flex-shrink-0" />
                     <div className="flex-1 space-y-2">
-                        <div className="h-3 bg-slate-100 rounded w-2/5" />
-                        <div className="h-6 bg-slate-100 rounded w-1/3" />
-                        <div className="h-3 bg-slate-100 rounded w-1/2" />
+                        <div className="h-3 bg-white/5 rounded w-2/5" />
+                        <div className="h-6 bg-white/5 rounded w-1/3" />
+                        <div className="h-3 bg-white/5 rounded w-1/2" />
                     </div>
                 </div>
             </div>
@@ -35,12 +35,12 @@ export default function PaymentStatusCard({ payment, loading, month, onClick }) 
             whileHover={{ y: -3, boxShadow: isPaid ? "0 12px 32px rgba(4,120,87,0.12)" : "0 12px 32px rgba(161,98,7,0.12)" }}
             whileTap={{ scale: 0.99 }}
             transition={{ duration: 0.2 }}
-            className={`card rounded-2xl p-5 cursor-pointer border-l-4 ${isPaid ? "border-emerald-400" : "border-yellow-400"
+            className={`card rounded-2xl p-5 cursor-pointer border-l-4 ${isPaid ? "border-emerald-500" : "border-yellow-400"
                 }`}
         >
             <div className="flex items-center gap-4">
                 {/* Icon pill */}
-                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${isPaid ? "bg-emerald-50" : "bg-yellow-50"
+                <div className={`w-14 h-14 rounded-2xl flex items-center justify-center flex-shrink-0 ${isPaid ? "bg-emerald-500/10" : "bg-yellow-500/10"
                     }`}>
                     {isPaid
                         ? <CheckCircle className="w-7 h-7 text-emerald-500" />
@@ -50,16 +50,16 @@ export default function PaymentStatusCard({ payment, loading, month, onClick }) 
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-semibold text-slate-400 uppercase tracking-widest mb-1">
+                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">
                         Maintenance Payment · {formatMonth(month)}
                     </p>
                     <div className="flex items-baseline gap-2 flex-wrap">
-                        <span className={`text-2xl font-bold ${isPaid ? "text-emerald-600" : "text-yellow-600"}`}>
+                        <span className={`text-2xl font-bold ${isPaid ? "text-emerald-400" : "text-yellow-400"}`}>
                             {isPaid ? "✓ Paid" : "Payment Due"}
                         </span>
-                        <span className="text-sm font-semibold text-slate-500">₹{amount.toLocaleString()}</span>
+                        <span className="text-sm font-semibold text-gray-300">₹{amount.toLocaleString()}</span>
                     </div>
-                    <p className={`text-xs mt-1 flex items-center gap-1 ${isPaid ? "text-slate-400" : "text-yellow-700 font-medium"}`}>
+                    <p className={`text-xs mt-1 flex items-center gap-1 ${isPaid ? "text-gray-400" : "text-yellow-500 font-medium"}`}>
                         <Clock className="w-3 h-3 flex-shrink-0" />
                         {isPaid
                             ? `Paid on ${payment.paidAt?.toDate
@@ -71,17 +71,17 @@ export default function PaymentStatusCard({ payment, loading, month, onClick }) 
                 </div>
 
                 {/* Arrow */}
-                <ChevronRight className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                <ChevronRight className="w-4 h-4 text-gray-600 flex-shrink-0" />
             </div>
 
             {/* Progress bar (for due state) */}
             {!isPaid && (
-                <div className="mt-3 pt-3 border-t border-slate-50">
-                    <div className="flex items-center justify-between text-[10px] text-slate-400 mb-1.5">
+                <div className="mt-3 pt-3 border-t border-white/5">
+                    <div className="flex items-center justify-between text-[10px] text-gray-400 mb-1.5">
                         <span>Payment status</span>
-                        <span className="font-semibold text-yellow-600">OVERDUE</span>
+                        <span className="font-semibold text-yellow-500">OVERDUE</span>
                     </div>
-                    <div className="h-1.5 bg-yellow-100 rounded-full overflow-hidden">
+                    <div className="h-1.5 bg-yellow-500/20 rounded-full overflow-hidden">
                         <motion.div
                             className="h-full bg-yellow-400 rounded-full"
                             initial={{ width: "0%" }}

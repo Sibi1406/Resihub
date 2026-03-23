@@ -3,14 +3,14 @@ import { useRef } from "react";
 import AnimatedCounter from "./AnimatedCounter";
 
 const styleMap = {
-    primary: { bg: "#FEF4DB", color: "#7A4E0A", border: "#F3E1B8", glow: "rgba(229,185,75,0.2)" },
-    amber: { bg: "#FFFBEB", color: "#B45309", border: "#FDE68A", glow: "rgba(180,83,9,0.15)" },
-    emerald: { bg: "#ECFDF5", color: "#047857", border: "#BBF7D0", glow: "rgba(4,120,87,0.15)" },
-    red: { bg: "#FEF2F2", color: "#B91C1C", border: "#FECACA", glow: "rgba(185,28,28,0.15)" },
-    blue: { bg: "#EFF6FF", color: "#1D4ED8", border: "#BFDBFE", glow: "rgba(29,78,216,0.15)" },
-    violet: { bg: "#F5F3FF", color: "#6D28D9", border: "#E9D5FF", glow: "rgba(109,40,217,0.15)" },
-    warning: { bg: "#FEFCE8", color: "#A16207", border: "#FEF08A", glow: "rgba(161,98,7,0.15)" },
-    green: { bg: "#ECFDF5", color: "#047857", border: "#BBF7D0", glow: "rgba(4,120,87,0.15)" },
+    primary: { bg: "rgba(229,185,75,0.08)", color: "#E5924B", border: "rgba(229,185,75,0.1)", glow: "rgba(229,185,75,0.15)" },
+    amber: { bg: "rgba(251,191,36,0.08)", color: "#FBBF24", border: "rgba(251,191,36,0.1)", glow: "rgba(251,191,36,0.15)" },
+    emerald: { bg: "rgba(16,185,129,0.08)", color: "#10B981", border: "rgba(16,185,129,0.1)", glow: "rgba(16,185,129,0.15)" },
+    red: { bg: "rgba(239,68,68,0.08)", color: "#EF4444", border: "rgba(239,68,68,0.1)", glow: "rgba(239,68,68,0.15)" },
+    blue: { bg: "rgba(59,130,246,0.08)", color: "#3B82F6", border: "rgba(59,130,246,0.1)", glow: "rgba(59,130,246,0.15)" },
+    violet: { bg: "rgba(139,92,246,0.08)", color: "#8B5CF6", border: "rgba(139,92,246,0.1)", glow: "rgba(139,92,246,0.15)" },
+    warning: { bg: "rgba(245,158,11,0.08)", color: "#F59E0B", border: "rgba(245,158,11,0.1)", glow: "rgba(245,158,11,0.15)" },
+    green: { bg: "rgba(16,185,129,0.08)", color: "#10B981", border: "rgba(16,185,129,0.1)", glow: "rgba(16,185,129,0.15)" },
 };
 
 export default function StatCard({ icon, label, value, color = "primary", subtext, onClick }) {
@@ -47,7 +47,7 @@ export default function StatCard({ icon, label, value, color = "primary", subtex
             style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 800 }}
             whileHover={{
                 y: -5,
-                boxShadow: `0 20px 40px ${s.glow}, 0 4px 12px rgba(16,24,40,0.08)`,
+                boxShadow: `0 20px 40px ${s.glow}, 0 4px 12px rgba(0,0,0,0.2)`,
             }}
             whileTap={{ scale: 0.98 }}
             onMouseMove={handleMouse}
@@ -71,7 +71,7 @@ export default function StatCard({ icon, label, value, color = "primary", subtex
                     <p className="section-label truncate mb-2">
                         {label}
                     </p>
-                    <p className="text-3xl md:text-4xl font-bold text-slate-800 tabular-nums tracking-tight">
+                    <p className="text-3xl md:text-4xl font-bold text-white tabular-nums tracking-tight">
                         {isNumericValue ? (
                             <AnimatedCounter value={value} />
                         ) : (
@@ -79,7 +79,7 @@ export default function StatCard({ icon, label, value, color = "primary", subtex
                         )}
                     </p>
                     {subtext && (
-                        <p className="text-xs text-slate-400 mt-1.5 truncate">{subtext}</p>
+                        <p className="text-xs text-gray-400 mt-1.5 truncate">{subtext}</p>
                     )}
                 </div>
                 <motion.div

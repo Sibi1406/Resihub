@@ -18,6 +18,8 @@ import AdminEmergenciesPage from "./pages/admin/EmergenciesPage";
 import AdminPaymentsPage from "./pages/admin/PaymentsPage";
 import AdminChatPage from "./pages/admin/ChatPage";
 import AdminProfilePage from "./pages/admin/ProfilePage";
+import AdminLostFoundPage from "./pages/admin/LostFoundPage";
+import FacilityManagementPage from "./pages/admin/FacilityManagementPage";
 
 // Resident pages
 import ResidentDashboard from "./pages/ResidentDashboard";
@@ -30,6 +32,8 @@ import ResidentAnnouncementsPage from "./modules/announcements/AnnouncementsPage
 import ResidentProfilePage from "./pages/resident/ProfilePage";
 import ResidentChatPage from "./pages/resident/ChatPage";
 import PaymentStatusPage from "./pages/resident/PaymentStatusPage";
+import ResidentLostFoundPage from "./pages/resident/LostFoundPage";
+import FacilityBookingPage from "./pages/resident/FacilityBookingPage";
 
 // Security pages
 import SecurityDashboard from "./pages/SecurityDashboard";
@@ -40,6 +44,7 @@ import VisitorHistoryPage from "./pages/security/VisitorHistoryPage";
 import EmergenciesPage from "./pages/security/EmergenciesPage";
 import AnnouncementsPageSecurity from "./pages/security/AnnouncementsPage";
 import SecurityProfilePage from "./pages/security/ProfilePage";
+import SecurityLostFoundPage from "./pages/security/LostFoundPage";
 
 function Protected({ roles, children }) {
   return (
@@ -67,6 +72,8 @@ export default function App() {
       <Route path="/admin/residents" element={<Protected roles={["admin"]}><AdminResidentsPage /></Protected>} />
       <Route path="/admin/settings" element={<Protected roles={["admin"]}><AdminSettingsPage /></Protected>} />
       <Route path="/admin/profile" element={<Protected roles={["admin"]}><AdminProfilePage /></Protected>} />
+      <Route path="/admin/lost-found" element={<Protected roles={["admin"]}><AdminLostFoundPage /></Protected>} />
+      <Route path="/admin/facility-management" element={<Protected roles={["admin"]}><FacilityManagementPage /></Protected>} />
 
       {/* ── Resident Routes ── */}
       <Route path="/resident" element={<Protected roles={["resident"]}><ResidentDashboard /></Protected>} />
@@ -79,6 +86,8 @@ export default function App() {
       <Route path="/resident/announcements" element={<Protected roles={["resident"]}><ResidentAnnouncementsPage /></Protected>} />
       <Route path="/resident/chat" element={<Protected roles={["resident"]}><ResidentChatPage /></Protected>} />
       <Route path="/resident/profile" element={<Protected roles={["resident"]}><ResidentProfilePage /></Protected>} />
+      <Route path="/resident/lost-found" element={<Protected roles={["resident"]}><ResidentLostFoundPage /></Protected>} />
+      <Route path="/resident/facility-booking" element={<Protected roles={["resident"]}><FacilityBookingPage /></Protected>} />
 
       {/* ── Security Routes ── */}
       <Route path="/security" element={<Protected roles={["security"]}><SecurityDashboard /></Protected>} />
@@ -89,6 +98,7 @@ export default function App() {
       <Route path="/security/emergencies" element={<Protected roles={["security"]}><EmergenciesPage /></Protected>} />
       <Route path="/security/announcements" element={<Protected roles={["security"]}><AnnouncementsPageSecurity /></Protected>} />
       <Route path="/security/profile" element={<Protected roles={["security"]}><SecurityProfilePage /></Protected>} />
+      <Route path="/security/lost-found" element={<Protected roles={["security"]}><SecurityLostFoundPage /></Protected>} />
 
       {/* Default */}
       <Route path="*" element={<Navigate to="/login" replace />} />

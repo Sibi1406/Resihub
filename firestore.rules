@@ -101,5 +101,30 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
 
+    // ── lostFound ─────────────────────────────────────────────────────────────
+    match /lostFound/{itemId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAdmin() || isOwner(resource.data.reportedBy);
+      allow delete: if isAdmin();
+    }
+
+    // ── facilities ────────────────────────────────────────────────────────────
+    match /facilities/{facilityId} {
+      allow read: if isAuthenticated();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // ── facilityBookings ──────────────────────────────────────────────────────
+    match /facilityBookings/{bookingId} {
+      allow read: if isAuthenticated();
+      allow create: if isResident();
+      allow update: if isAdmin() || isOwner(resource.data.bookedBy);
+      allow delete: if isAdmin();
+    }
+
   }
 }
+
