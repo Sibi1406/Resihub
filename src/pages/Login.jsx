@@ -79,8 +79,8 @@ export default function Login() {
           initial={{ opacity: 0, y: 24, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          className="grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden shadow-2xl border border-slate-100"
-          style={{ boxShadow: "0 32px 80px rgba(0,0,0,0.12), 0 2px 16px rgba(0,0,0,0.04)" }}
+          className="grid grid-cols-1 lg:grid-cols-2 rounded-3xl overflow-hidden shadow-xl border border-black/5"
+          style={{ boxShadow: "0 24px 60px rgba(0,0,0,0.10), 0 2px 12px rgba(0,0,0,0.04)" }}
         >
           {/* Left Panel */}
           <div className="relative hidden lg:flex flex-col justify-between p-10 overflow-hidden"
@@ -105,7 +105,7 @@ export default function Login() {
               className="relative z-10"
             >
               <h1 className="text-3xl font-bold text-white">
-                Resi<span style={{ color: "#E5B94B" }}>Hub</span>
+                Resi<span style={{ color: "#7CAE8E" }}>Hub</span>
               </h1>
               <p className="text-white/60 text-sm mt-1">Smart Residential Management</p>
             </motion.div>
@@ -139,7 +139,7 @@ export default function Login() {
           </div>
 
           {/* Right Panel — Form */}
-          <div className="bg-white p-8 lg:p-10 flex flex-col justify-center">
+          <div style={{ background: "#FFFFFF" }} className="p-8 lg:p-10 flex flex-col justify-center">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
@@ -147,13 +147,13 @@ export default function Login() {
             >
               {/* Mobile brand */}
               <div className="lg:hidden mb-6">
-                <h1 className="text-xl font-bold text-slate-800 tracking-tight">
-                  Resi<span className="accent-mustard">Hub</span>
+                <h1 className="text-xl font-bold tracking-tight" style={{ color: "#1A1D23" }}>
+                  Resi<span style={{ color: "#7CAE8E" }}>Hub</span>
                 </h1>
               </div>
 
-              <h2 className="text-[var(--text-title)] font-bold text-slate-800 tracking-tight mb-1">Welcome back 👋</h2>
-              <p className="text-slate-500 text-[var(--text-small)] mb-6">Sign in to your account to continue</p>
+              <h2 className="text-[var(--text-title)] font-bold tracking-tight mb-1" style={{ color: "#1A1D23" }}>Welcome back 👋</h2>
+              <p className="text-[var(--text-small)] mb-6" style={{ color: "#6B7280" }}>Sign in to your account to continue</p>
 
               <form onSubmit={handleLogin} className="space-y-4">
                 {/* Email */}
@@ -167,7 +167,8 @@ export default function Login() {
                     placeholder="you@resihub.in"
                     required
                     autoComplete="email"
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[var(--text-body)] text-slate-800 placeholder-slate-400 input-ring"
+                    className="w-full px-4 py-3 rounded-xl border text-[var(--text-body)] placeholder-gray-400 input-ring"
+                    style={{ borderColor: "#E5E7EB", background: "#FAFAFA", color: "#1A1D23" }}
                   />
                 </div>
 
@@ -183,13 +184,15 @@ export default function Login() {
                       placeholder="••••••••"
                       required
                       autoComplete="current-password"
-                      className="w-full px-4 py-3 rounded-xl border border-slate-200 text-[var(--text-body)] text-slate-800 placeholder-slate-400 input-ring pr-12"
+                      className="w-full px-4 py-3 rounded-xl border text-[var(--text-body)] placeholder-gray-400 input-ring pr-12"
+                      style={{ borderColor: "#E5E7EB", background: "#FAFAFA", color: "#1A1D23" }}
                     />
                     <button
                       type="button"
                       aria-label={showPw ? "Hide password" : "Show password"}
                       onClick={() => setShowPw(!showPw)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 min-w-[var(--touch-min)] min-h-[var(--touch-min)] flex items-center justify-center -mr-2 text-slate-400 hover:text-slate-600 transition-colors"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 min-w-[var(--touch-min)] min-h-[var(--touch-min)] flex items-center justify-center -mr-2 transition-colors"
+                      style={{ color: "#9CA3AF" }}
                     >
                       {showPw ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                     </button>
@@ -229,9 +232,9 @@ export default function Login() {
               </form>
 
               {/* Demo hint */}
-              <div className="mt-6 p-3.5 bg-slate-50 rounded-xl border border-slate-100">
-                <p className="text-[var(--text-caption)] text-slate-500 text-center font-medium">
-                  Demo: <span className="text-slate-700">admin@resihub.in</span> · <span className="text-slate-700">priya@resihub.in</span>
+              <div className="mt-6 p-3.5 rounded-xl border" style={{ background: "#F9F9F7", borderColor: "#E5E7EB" }}>
+                <p className="text-[var(--text-caption)] text-center font-medium" style={{ color: "#6B7280" }}>
+                  Demo: <span style={{ color: "#1A1D23" }}>admin@resihub.in</span> · <span style={{ color: "#1A1D23" }}>priya@resihub.in</span>
                 </p>
               </div>
             </motion.div>
@@ -242,7 +245,8 @@ export default function Login() {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           transition={{ delay: 0.8 }}
-          className="text-center text-xs text-slate-400 mt-5"
+          className="text-center text-xs mt-5"
+          style={{ color: "#9CA3AF" }}          
         >
           © 2026 ResiHub · Smart Residential Management System
         </motion.p>

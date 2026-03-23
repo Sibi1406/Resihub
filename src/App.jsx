@@ -16,7 +16,6 @@ import AdminComplaintsPage from "./pages/admin/ComplaintsPage";
 import AdminVisitorsPage from "./pages/admin/VisitorsPage";
 import AdminEmergenciesPage from "./pages/admin/EmergenciesPage";
 import AdminPaymentsPage from "./pages/admin/PaymentsPage";
-import AdminChatPage from "./pages/admin/ChatPage";
 import AdminProfilePage from "./pages/admin/ProfilePage";
 import AdminLostFoundPage from "./pages/admin/LostFoundPage";
 import FacilityManagementPage from "./pages/admin/FacilityManagementPage";
@@ -30,7 +29,6 @@ import ResidentEmergencyPage from "./modules/emergency/EmergencyPage";
 import ResidentEmergencyHistory from "./pages/resident/EmergencyHistory";
 import ResidentAnnouncementsPage from "./modules/announcements/AnnouncementsPage";
 import ResidentProfilePage from "./pages/resident/ProfilePage";
-import ResidentChatPage from "./pages/resident/ChatPage";
 import PaymentStatusPage from "./pages/resident/PaymentStatusPage";
 import ResidentLostFoundPage from "./pages/resident/LostFoundPage";
 import FacilityBookingPage from "./pages/resident/FacilityBookingPage";
@@ -68,7 +66,6 @@ export default function App() {
       <Route path="/admin/emergencies" element={<Protected roles={["admin"]}><AdminEmergenciesPage /></Protected>} />
       <Route path="/admin/payments" element={<Protected roles={["admin"]}><AdminPaymentsPage /></Protected>} />
       <Route path="/admin/announcements" element={<Protected roles={["admin"]}><AdminAnnouncementsPage /></Protected>} />
-      <Route path="/admin/chat" element={<Protected roles={["admin"]}><AdminChatPage /></Protected>} />
       <Route path="/admin/residents" element={<Protected roles={["admin"]}><AdminResidentsPage /></Protected>} />
       <Route path="/admin/settings" element={<Protected roles={["admin"]}><AdminSettingsPage /></Protected>} />
       <Route path="/admin/profile" element={<Protected roles={["admin"]}><AdminProfilePage /></Protected>} />
@@ -84,7 +81,6 @@ export default function App() {
       <Route path="/resident/emergency" element={<Protected roles={["resident"]}><ResidentEmergencyPage /></Protected>} />
       <Route path="/resident/emergency-history" element={<Protected roles={["resident"]}><ResidentEmergencyHistory /></Protected>} />
       <Route path="/resident/announcements" element={<Protected roles={["resident"]}><ResidentAnnouncementsPage /></Protected>} />
-      <Route path="/resident/chat" element={<Protected roles={["resident"]}><ResidentChatPage /></Protected>} />
       <Route path="/resident/profile" element={<Protected roles={["resident"]}><ResidentProfilePage /></Protected>} />
       <Route path="/resident/lost-found" element={<Protected roles={["resident"]}><ResidentLostFoundPage /></Protected>} />
       <Route path="/resident/facility-booking" element={<Protected roles={["resident"]}><FacilityBookingPage /></Protected>} />

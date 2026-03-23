@@ -29,7 +29,6 @@ const routeLabels = {
     "/resident/payments": "Payments",
     "/resident/emergency": "Emergency",
     "/resident/announcements": "Announcements",
-    "/resident/chat": "Community Chat",
     "/resident/profile": "Profile",
     "/resident/lost-found": "Lost & Found",
     "/resident/facility-booking": "Facility Booking",
@@ -192,21 +191,21 @@ export default function DashboardLayout({ children }) {
                             <Menu className="w-5 h-5" />
                         </button>
                         {/* Mobile brand */}
-                        <span className="lg:hidden text-lg font-bold text-white tracking-tight">
-                            Resi<span className="accent-mustard">Hub</span>
+                        <span className="lg:hidden text-lg font-bold tracking-tight" style={{ color: "#1A1D23" }}>
+                            Resi<span style={{ color: "#7CAE8E" }}>Hub</span>
                         </span>
                         {/* Desktop breadcrumb */}
                         <nav className="hidden lg:flex items-center gap-2 text-[var(--text-small)]" aria-label="Breadcrumb">
-                            <span className="text-gray-400 font-medium">{roleSection}</span>
-                            <ChevronRight className="w-3.5 h-3.5 text-gray-600 flex-shrink-0" aria-hidden />
-                            <span className="font-semibold text-white">{pageLabel}</span>
+                            <span className="text-gray-500 font-medium">{roleSection}</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-gray-400 flex-shrink-0" aria-hidden />
+                            <span className="font-semibold text-gray-800">{pageLabel}</span>
                         </nav>
                     </div>
 
                     {/* Right: clock (security), bell, avatar */}
                     <div className="flex items-center gap-2">
                         {role === "security" && (
-                            <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-gray-400 bg-white/5 rounded-lg px-3 py-1.5">
+                            <div className="hidden sm:flex items-center gap-1.5 text-xs font-medium text-gray-500 bg-black/5 rounded-lg px-3 py-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
                                 <LiveClock />
                             </div>
@@ -218,9 +217,9 @@ export default function DashboardLayout({ children }) {
                             aria-label={notifCount > 0 ? `${notifCount} notifications` : "Notifications"}
                             whileHover={{ scale: 1.05 }}
                             whileTap={{ scale: 0.95 }}
-                            className="relative min-w-[var(--touch-min)] min-h-[var(--touch-min)] w-11 h-11 rounded-xl hover:bg-white/5 transition-colors flex items-center justify-center"
+                            className="relative min-w-[var(--touch-min)] min-h-[var(--touch-min)] w-11 h-11 rounded-xl hover:bg-black/5 transition-colors flex items-center justify-center"
                         >
-                            <Bell className={`w-4.5 h-4.5 ${notifPulse ? "text-[#E5B94B]" : "text-gray-400"} transition-colors`} />
+                            <Bell className={`w-4.5 h-4.5 ${notifPulse ? "text-[#7CAE8E]" : "text-gray-500"} transition-colors`} />
                             <AnimatePresence>
                                 {notifCount > 0 && (
                                     <motion.span
@@ -242,14 +241,14 @@ export default function DashboardLayout({ children }) {
                         <div className="relative" ref={dropdownRef}>
                             <button
                                 onClick={() => setProfileOpen(p => !p)}
-                                className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-white/5 transition-colors"
+                                className="flex items-center gap-2.5 rounded-xl px-2 py-1.5 hover:bg-black/5 transition-colors"
                             >
-                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#E5B94B] to-[#C97B1A] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
+                                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#7CAE8E] to-[#5B9471] flex items-center justify-center text-white text-xs font-bold flex-shrink-0">
                                     {initials}
                                 </div>
                                 <div className="hidden md:block text-left leading-tight">
-                                    <p className="text-xs font-semibold text-white truncate max-w-[120px]">{userData?.name || roleSection}</p>
-                                    <p className="text-[10px] text-gray-500 capitalize">{role}</p>
+                                    <p className="text-xs font-semibold truncate max-w-[120px]" style={{ color: "#1A1D23" }}>{userData?.name || roleSection}</p>
+                                    <p className="text-[10px] capitalize" style={{ color: "#6B7280" }}>{role}</p>
                                 </div>
                             </button>
 
@@ -260,25 +259,25 @@ export default function DashboardLayout({ children }) {
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: 4, scale: 0.96 }}
                                         transition={{ duration: 0.15 }}
-                                        className="absolute right-0 top-full mt-2 w-52 bg-[#1C1C1E] rounded-xl shadow-2xl border border-white/5 z-50 overflow-hidden"
+                                        className="absolute right-0 top-full mt-2 w-52 bg-white rounded-xl shadow-xl border border-black/5 z-50 overflow-hidden"
                                     >
                                         {/* User info header */}
-                                        <div className="px-4 py-3 border-b border-white/5">
-                                            <p className="text-sm font-semibold text-white truncate">{userData?.name || roleSection}</p>
-                                            <p className="text-xs text-gray-500 truncate">{userData?.email || role}</p>
+                                        <div className="px-4 py-3 border-b border-black/5">
+                                            <p className="text-sm font-semibold truncate" style={{ color: "#1A1D23" }}>{userData?.name || roleSection}</p>
+                                            <p className="text-xs truncate" style={{ color: "#6B7280" }}>{userData?.email || role}</p>
                                         </div>
                                         <div className="py-1">
                                             <button
                                                 onClick={() => { setProfileOpen(false); navigate(`/${role}/profile`); }}
-                                                className="w-full text-left px-4 py-2.5 text-sm text-white hover:bg-white/5 transition-colors"
+                                                className="w-full text-left px-4 py-2.5 text-sm hover:bg-gray-50 transition-colors" style={{ color: "#1A1D23" }}
                                             >
                                                 My Profile
                                             </button>
                                         </div>
-                                        <div className="border-t border-white/5 py-1">
+                                        <div className="border-t border-black/5 py-1">
                                             <button
                                                 onClick={handleLogout}
-                                                className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-500/10 transition-colors font-medium"
+                                                className="w-full text-left px-4 py-2.5 text-sm text-red-500 hover:bg-red-50 transition-colors font-medium"
                                             >
                                                 Sign Out
                                             </button>

@@ -3,7 +3,7 @@ import { useRef } from "react";
 import AnimatedCounter from "./AnimatedCounter";
 
 const styleMap = {
-    primary: { bg: "rgba(229,185,75,0.08)", color: "#E5924B", border: "rgba(229,185,75,0.1)", glow: "rgba(229,185,75,0.15)" },
+    primary: { bg: "rgba(124,174,142,0.10)", color: "#5B9471", border: "rgba(124,174,142,0.15)", glow: "rgba(124,174,142,0.15)" },
     amber: { bg: "rgba(251,191,36,0.08)", color: "#FBBF24", border: "rgba(251,191,36,0.1)", glow: "rgba(251,191,36,0.15)" },
     emerald: { bg: "rgba(16,185,129,0.08)", color: "#10B981", border: "rgba(16,185,129,0.1)", glow: "rgba(16,185,129,0.15)" },
     red: { bg: "rgba(239,68,68,0.08)", color: "#EF4444", border: "rgba(239,68,68,0.1)", glow: "rgba(239,68,68,0.15)" },
@@ -47,7 +47,7 @@ export default function StatCard({ icon, label, value, color = "primary", subtex
             style={{ rotateX, rotateY, transformStyle: "preserve-3d", perspective: 800 }}
             whileHover={{
                 y: -5,
-                boxShadow: `0 20px 40px ${s.glow}, 0 4px 12px rgba(0,0,0,0.2)`,
+                boxShadow: `0 16px 32px ${s.glow}, 0 4px 12px rgba(0,0,0,0.08)`,
             }}
             whileTap={{ scale: 0.98 }}
             onMouseMove={handleMouse}
@@ -71,7 +71,7 @@ export default function StatCard({ icon, label, value, color = "primary", subtex
                     <p className="section-label truncate mb-2">
                         {label}
                     </p>
-                    <p className="text-3xl md:text-4xl font-bold text-white tabular-nums tracking-tight">
+                    <p className="text-3xl md:text-4xl font-bold tabular-nums tracking-tight" style={{ color: "#1A1D23" }}>
                         {isNumericValue ? (
                             <AnimatedCounter value={value} />
                         ) : (
@@ -79,7 +79,7 @@ export default function StatCard({ icon, label, value, color = "primary", subtex
                         )}
                     </p>
                     {subtext && (
-                        <p className="text-xs text-gray-400 mt-1.5 truncate">{subtext}</p>
+                        <p className="text-xs mt-1.5 truncate" style={{ color: "#9CA3AF" }}>{subtext}</p>
                     )}
                 </div>
                 <motion.div

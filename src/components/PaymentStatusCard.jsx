@@ -18,11 +18,11 @@ export default function PaymentStatusCard({ payment, loading, month, onClick }) 
         return (
             <div className="card rounded-2xl p-5 animate-pulse">
                 <div className="flex items-center gap-4">
-                    <div className="w-14 h-14 rounded-xl bg-white/5 flex-shrink-0" />
+                    <div className="w-14 h-14 rounded-xl bg-slate-100 flex-shrink-0" />
                     <div className="flex-1 space-y-2">
-                        <div className="h-3 bg-white/5 rounded w-2/5" />
-                        <div className="h-6 bg-white/5 rounded w-1/3" />
-                        <div className="h-3 bg-white/5 rounded w-1/2" />
+                        <div className="h-3 bg-slate-100 rounded w-2/5" />
+                        <div className="h-6 bg-slate-100 rounded w-1/3" />
+                        <div className="h-3 bg-slate-100 rounded w-1/2" />
                     </div>
                 </div>
             </div>
@@ -50,16 +50,16 @@ export default function PaymentStatusCard({ payment, loading, month, onClick }) 
 
                 {/* Content */}
                 <div className="flex-1 min-w-0">
-                    <p className="text-[11px] font-semibold text-gray-400 uppercase tracking-widest mb-1">
+                    <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mb-1">
                         Maintenance Payment · {formatMonth(month)}
                     </p>
                     <div className="flex items-baseline gap-2 flex-wrap">
-                        <span className={`text-2xl font-bold ${isPaid ? "text-emerald-400" : "text-yellow-400"}`}>
+                        <span className={`text-2xl font-extrabold ${isPaid ? "text-emerald-600" : "text-amber-600"}`}>
                             {isPaid ? "✓ Paid" : "Payment Due"}
                         </span>
-                        <span className="text-sm font-semibold text-gray-300">₹{amount.toLocaleString()}</span>
+                        <span className="text-sm font-bold text-slate-600">₹{amount.toLocaleString()}</span>
                     </div>
-                    <p className={`text-xs mt-1 flex items-center gap-1 ${isPaid ? "text-gray-400" : "text-yellow-500 font-medium"}`}>
+                    <p className={`text-xs mt-1 flex items-center gap-1 ${isPaid ? "text-slate-500" : "text-amber-600 font-semibold"}`}>
                         <Clock className="w-3 h-3 flex-shrink-0" />
                         {isPaid
                             ? `Paid on ${payment.paidAt?.toDate
@@ -76,10 +76,10 @@ export default function PaymentStatusCard({ payment, loading, month, onClick }) 
 
             {/* Progress bar (for due state) */}
             {!isPaid && (
-                <div className="mt-3 pt-3 border-t border-white/5">
-                    <div className="flex items-center justify-between text-[10px] text-gray-400 mb-1.5">
+                <div className="mt-3 pt-3 border-t border-slate-100">
+                    <div className="flex items-center justify-between text-[10px] text-slate-500 mb-1.5">
                         <span>Payment status</span>
-                        <span className="font-semibold text-yellow-500">OVERDUE</span>
+                        <span className="font-bold text-amber-600 uppercase tracking-wider">Overdue</span>
                     </div>
                     <div className="h-1.5 bg-yellow-500/20 rounded-full overflow-hidden">
                         <motion.div

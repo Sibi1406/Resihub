@@ -6,12 +6,13 @@ import StatCard from "../components/StatCard";
 import PaymentStatusCard from "../components/PaymentStatusCard";
 import PageTransition from "../components/PageTransition";
 import { staggerContainer, cardVariants, fadeInUp } from "../lib/motionVariants";
-import { FileText, UserCheck, AlertTriangle, MessageCircle } from "lucide-react";
+import { FileText, UserCheck, AlertTriangle } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import { subscribeUserComplaints } from "../services/complaintService";
 import { subscribeVisitors } from "../services/visitorService";
 import { subscribeActiveEmergencies } from "../services/emergencyService";
 import { subscribePaymentStatus, getCurrentMonth } from "../services/paymentService";
+import { subscribeAnnouncements } from "../services/announcementService";
 
 export default function ResidentDashboard() {
     const { user, userData } = useAuth();
@@ -21,6 +22,7 @@ export default function ResidentDashboard() {
     const [scheduledVisitors, setScheduledVisitors] = useState(0);
     const [activeEmergencies, setActiveEmergencies] = useState(0);
     const [paymentStatus, setPaymentStatus] = useState(null);
+    const [latestAnnouncement, setLatestAnnouncement] = useState(null);
     const [paymentLoading, setPaymentLoading] = useState(true);
     const currentMonth = getCurrentMonth();
 
@@ -75,6 +77,16 @@ export default function ResidentDashboard() {
             })
         );
 
+        // announcements
+        unsubs.push(
+            subscribeAnnouncements((list) => {
+                const relevant = list.filter(a => a.category === "maintenance" || a.category === "event");
+                if (relevant.length > 0) {
+                    setLatestAnnouncement(relevant[0]);
+                }
+            })
+        );
+
         // Maintenance payment status for current month
         const unsub = subscribePaymentStatus(user.uid, currentMonth, (payment) => {
             setPaymentStatus(payment);
@@ -103,13 +115,12 @@ export default function ResidentDashboard() {
                     variants={staggerContainer}
                     initial="initial"
                     animate="animate"
-                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+                    className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8"
                 >
                     {[
                         { icon: <FileText className="w-5 h-5" />, label: "Active Complaints", value: activeComplaints, color: "blue", path: "/resident/complaints", sub: "tap to view" },
                         { icon: <UserCheck className="w-5 h-5" />, label: "Visitors Informed", value: scheduledVisitors, color: "primary", path: "/resident/visitors", sub: "tap to manage" },
                         { icon: <AlertTriangle className="w-5 h-5" />, label: "Active Emergencies", value: activeEmergencies, color: "red", path: "/resident/emergency", sub: "tap to report" },
-                        { icon: <MessageCircle className="w-5 h-5" />, label: "Community Chat", value: "Live", color: "violet", path: "/resident/chat", sub: "tap to join" },
                     ].map((card) => (
                         <motion.div key={card.label} variants={cardVariants}>
                             <StatCard {...card} subtext={card.sub} onClick={() => navigate(card.path)} />
@@ -138,53 +149,58 @@ export default function ResidentDashboard() {
                         <div className="card p-5">
                             <div className="flex items-center justify-between mb-6">
                                 <div className="flex items-center gap-2">
-                                    <div className="w-8 h-8 rounded-full bg-white/5 flex items-center justify-center border border-white/5">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-300"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-600"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                                     </div>
-                                    <h3 className="text-base font-semibold text-white">Calendar</h3>
+                                    <h3 className="text-base font-semibold text-slate-800">Schedule</h3>
                                 </div>
-                                <button className="text-gray-400 hover:text-white text-xs font-medium flex items-center gap-1">
-                                    September
+                                <button className="text-slate-500 hover:text-slate-800 text-xs font-bold flex items-center gap-1 bg-slate-100 px-2 py-1 rounded-lg transition-colors">
+                                    {new Date().toLocaleDateString("en-IN", { month: "long" })}
                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
                                 </button>
                             </div>
 
                             {/* Calendar Days Strip */}
                             <div className="flex justify-between items-center mb-6 px-1">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 cursor-pointer"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 cursor-pointer"><polyline points="15 18 9 12 15 6"></polyline></svg>
                                 {[9, 10, 11, 12, 13, 14, 15].map((d, i) => (
-                                    <div key={d} className={`flex flex-col items-center p-2 rounded-xl min-w-[2.5rem] ${d === 12 ? 'bg-[#E5924B] text-white shadow-lg shadow-[#E5924B]/30' : 'text-gray-400 hover:bg-white/5 cursor-pointer transition-colors'}`}>
+                                    <div key={d} className={`flex flex-col items-center p-2 rounded-xl min-w-[2.5rem] ${d === 12 ? 'bg-[#E5924B] text-white shadow-lg shadow-[#E5924B]/30' : 'text-slate-500 hover:bg-slate-100 cursor-pointer transition-colors'}`}>
                                         <span className="text-[10px] uppercase font-bold mb-1 opacity-80">
-                                            {['Fri','Sat','Sun','Mon','Tue','Wed','Thu'][i]}
+                                            {['Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu'][i]}
                                         </span>
                                         <span className="text-sm font-bold">{d}</span>
                                     </div>
                                 ))}
-                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500 cursor-pointer"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-slate-400 cursor-pointer"><polyline points="9 18 15 12 9 6"></polyline></svg>
                             </div>
 
-                            {/* Mock Event Card */}
-                            <div className="relative overflow-hidden group cursor-pointer transition-all border border-white/5 rounded-2xl p-4 bg-gradient-to-r from-white/5 to-transparent hover:border-[#E5924B]/40">
-                                {/* Accent Line */}
-                                <div className="absolute left-0 top-0 bottom-0 w-1 bg-[#E5924B] rounded-l-2xl" />
-                                
-                                <div className="flex justify-between items-start pl-2">
-                                    <div>
-                                        <h4 className="text-white font-bold text-sm mb-1.5">Meeting with PM</h4>
-                                        <p className="text-gray-400 text-xs font-medium mb-3">Today · 11:00 - 11:30 am</p>
-                                        <div className="inline-flex items-center gap-1.5 bg-white/5 px-2.5 py-1 rounded-md border border-white/5">
-                                            <div className="w-1.5 h-1.5 rounded-full bg-blue-400" />
-                                            <span className="text-gray-300 text-[10px] font-semibold">Google Meet</span>
+                            {/* Dynamic Announcement Card */}
+                            {latestAnnouncement ? (
+                                <div className="relative overflow-hidden group cursor-pointer transition-all border border-slate-100 rounded-2xl p-4 bg-slate-50/50 hover:border-amber-200/50">
+                                    {/* Accent Line */}
+                                    <div className="absolute left-0 top-0 bottom-0 w-1 bg-amber-400 rounded-l-2xl" />
+
+                                    <div className="flex justify-between items-start pl-2">
+                                        <div className="flex-1 min-w-0">
+                                            <h4 className="text-slate-800 font-bold text-sm mb-1.5 truncate">{latestAnnouncement.title}</h4>
+                                            <p className="text-slate-500 text-xs font-medium mb-3 line-clamp-2">{latestAnnouncement.message}</p>
+                                            <div className="inline-flex items-center gap-1.5 bg-amber-50 px-2.5 py-1 rounded-md border border-amber-100">
+                                                <div className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                                <span className="text-amber-800 text-[10px] font-bold uppercase">{latestAnnouncement.category}</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="ml-3 flex flex-col items-center flex-shrink-0">
+                                            <div className="text-[10px] font-bold text-slate-400 uppercase">{latestAnnouncement.createdAt?.toDate ? latestAnnouncement.createdAt.toDate().toLocaleDateString("en-IN", { month: "short" }) : ""}</div>
+                                            <div className="text-lg font-extrabold text-slate-700">{latestAnnouncement.createdAt?.toDate ? latestAnnouncement.createdAt.toDate().getDate() : ""}</div>
                                         </div>
                                     </div>
-                                    
-                                    {/* Avatars */}
-                                    <div className="flex -space-x-2">
-                                        <div className="w-7 h-7 rounded-full bg-purple-500 border-2 border-[#1C1C1E] flex items-center justify-center text-[10px] font-bold text-white z-20">A</div>
-                                        <div className="w-7 h-7 rounded-full bg-blue-500 border-2 border-[#1C1C1E] flex items-center justify-center text-[10px] font-bold text-white z-10">B</div>
-                                    </div>
                                 </div>
-                            </div>
+                            ) : (
+                                <div className="text-center py-8 text-slate-400 text-sm italic">
+                                    No upcoming announcements
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -206,7 +222,7 @@ export default function ResidentDashboard() {
                                     className="card p-4 rounded-xl text-center cursor-pointer border border-transparent hover:border-[#E5B94B]/30 transition-colors flex flex-col items-center justify-center h-full"
                                 >
                                     <div className="text-2xl mb-2">{action.emoji}</div>
-                                    <div className="text-xs font-medium text-white">{action.label}</div>
+                                    <div className="text-xs font-semibold text-slate-800">{action.label}</div>
                                 </motion.button>
                             ))}
                         </div>
